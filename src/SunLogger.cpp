@@ -93,7 +93,9 @@ void loop( void )
 	
 	int solar = (100 * adcValue) / ADCref;    // Solar's efficiency [%]
 	
-	sum += solar;
-	snprintf( line, sizeof(line), "%d: solar power %3d - cumulative %2d\r\n", ++counter, solar, sum / counter );
+	sum += solar;                             // Note: Overflows after few years
+	counter++;
+	snprintf( line, sizeof(line), "%d: adc %4d - solar power %3d - cumulative %2ld\r\n", counter, adcValue, solar, sum / counter );
+
 	Serial.printf("%s", line);
 }
