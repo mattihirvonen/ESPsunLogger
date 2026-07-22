@@ -38,38 +38,41 @@ int     adcValue;          // Work space variable
 // Dummy IIR style filtering
 int floatingAverage( int32_t *sum, int x, int N )
 {
-	int avg = *sum / N;
-	
-	*sum -= avg;
-	*sum += x;
-	
-	return *sum / N;
+    int avg = *sum / N;
+    
+    *sum -= avg;
+    *sum += x;
+    
+    return *sum / N;
 }
 
 
 void taskMeasure( void *pvParameters )
 {
-	#define TASK_PERIOD  10   // in tick(s) [ms]
-	#define OFFSET_FIX   100  // 80 mV equals about 100 ADC units
-	
-	static TickType_t  xLastWakeTime = 1000;
-	static int32_t     sum           = 0;
+    #define TASK_PERIOD  10   // in tick(s) [ms]
+    #define OFFSET_FIX   100  // 80 mV equals about 100 ADC units
+    
+    static TickType_t  xLastWakeTime = 0;
+    static int32_t     sum           = 0;
 
+    if ( !xLastWakeTime ) {
+          xLastWakeTime = millis();  // Initializetion: Get current uptime
+    }
     // Wait for the next cycle.
     BaseType_t UNUSED  xWasDelayed = xTaskDelayUntil( &xLastWakeTime, TASK_PERIOD );
 
     // Note ADC result offset fix
     int adc_result = analogRead( ADC_IOPIN ) + OFFSET_FIX;
-	
-	adcValue = floatingAverage( &sum, adc_result, Ntaps );
+    
+    adcValue = floatingAverage( &sum, adc_result, Ntaps );
 }
 
 
 void setup( void )
 {
-	Serial.begin( 115200 );
-	
-	xTaskCreate(
+    Serial.begin( 115200 );
+    
+    xTaskCreate(
       taskMeasure,    // function name
       "Measure",      // task name (for debugging)
       128,            // stack size in words (not bytes)
@@ -82,24 +85,24 @@ void setup( void )
 
 void loop( void )
 {
-	#define PERIOD  1000L  // [ms]
-	
+    #define PERIOD  1000L  // [ms]
+    
     static int      counter  = 0;
-	static int32_t  sum      = 0;
-	static int32_t  previous = 0;
-	       int32_t  now      = millis();
-		   char     line[256];
-	
-	if ( (int32_t)(now - previous) < PERIOD ) {
-		return;
-	}
-	previous += PERIOD;
-	
-	int solarIntensity = (100 * adcValue) / ADCref;    // Solar's intensity [%]
-	
-	sum += solarIntensity;                             // Note: Overflows after few years
-	counter++;
-	snprintf( line, sizeof(line), "%d: adc %4d - solar intensity %3d - cumulative %2ld\r\n", counter, adcValue, solarIntensity, sum / counter );
+    static int32_t  sum      = 0;
+    static int32_t  previous = 0;
+           int32_t  now      = millis();
+           char     line[256];
+    
+    if ( (int32_t)(now - previous) < PERIOD ) {
+        return;
+    }
+    previous += PERIOD;
+    
+    int solarIntensity = (100 * adcValue) / ADCref;    // Solar's intensity [%]
+    
+    sum += solarIntensity;                             // Note: Overflows after few years
+    counter++;
+    snprintf( line, sizeof(line), "%d: adc %4d - solar intensity %3d - cumulative %2ld\r\n", counter, adcValue, solarIntensity, sum / counter );
 
-	Serial.printf("%s", line);
+    Serial.printf("%s", line);
 }
