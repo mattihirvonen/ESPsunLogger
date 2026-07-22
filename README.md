@@ -22,3 +22,8 @@ Calibration sequence
 - print/read measured ADC value from application
 - update "*ADCref*" variable value wth this measured ADC value
 
+### Build Environments
+
+Application can build using
+- Arduino IDE / CLI
+- VSCode + PIOARDUINO
