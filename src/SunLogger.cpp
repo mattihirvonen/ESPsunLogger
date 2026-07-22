@@ -1,10 +1,12 @@
 
 //
 // ESP32 ADC is enough linear at range 150 mV ... 2500 mV to measure
-// small solar panel's current (we are here interrested only 10% accuracy.
+// small solar panel's current (we are here interrested only 10% accuracy).
+// There is about 80 mV offset error in ESP32's ADC measurements.
 //
 // https://suncalc.org
 // https://lucidar.me/en/esp32/linearity-of-the-esp32-adc/
+// https://hackaday.io/project/205380-adc-performance-arduino-vs-esp32-vs-ads1115
 // https://randomnerdtutorials.com/esp32-adc-analog-read-arduino-ide/
 // https://randomnerdtutorials.com/esp-idf-esp32-gpio-analog-adc/
 //
@@ -24,11 +26,11 @@
 #define ADC_IOPIN  34      // Analog ADC1_CH6
 #define SPmax      950     // Sun's peak power [W/m2] at latitude 60 deg. north (summer time)
 
-float   Iref   = 0.024;    // Solar panel's measured "short circuit" current [A] at SPmax
+float   Iref   = 0.0215;   // Solar panel's measured "short circuit" current [A] at SPmax
 float   Rshunt = 100.0;    // Current shunt resistance [ohm]: Select value <= (2.5V / Iref)
 //
-int     ADCref = 2960;     // Measured ADC value at SPmax (and  also at Iref)
-int     Ntaps  = 100;      // Filter coefficient
+int     ADCref = 2650;     // Measured ADC value at SPmax (and  also at Iref)
+int     Ntaps  = 30;       // Filter coefficient
 
 int     adcValue;          // Work space variable
 
@@ -38,8 +40,8 @@ int floatingAverage( int32_t *sum, int x, int N )
 {
 	int avg = *sum / N;
 	
-	sum -= avg;
-	sum += x;
+	*sum -= avg;
+	*sum += x;
 	
 	return *sum / N;
 }
@@ -47,15 +49,17 @@ int floatingAverage( int32_t *sum, int x, int N )
 
 void taskMeasure( void *pvParameters )
 {
-	#define TASK_PERIOD  10  // in tick(s) [ms]
+	#define TASK_PERIOD  10   // in tick(s) [ms]
+	#define OFFSET_FIX   100  // 80 mV equals about 100 ADC units
 	
 	static TickType_t  xLastWakeTime = 1000;
 	static int32_t     sum           = 0;
 
     // Wait for the next cycle.
     BaseType_t UNUSED  xWasDelayed = xTaskDelayUntil( &xLastWakeTime, TASK_PERIOD );
-	
-    int adc_result = analogRead( ADC_IOPIN );
+
+    // Note ADC result offset fix
+    int adc_result = analogRead( ADC_IOPIN ) + OFFSET_FIX;
 	
 	adcValue = floatingAverage( &sum, adc_result, Ntaps );
 }
