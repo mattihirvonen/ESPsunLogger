@@ -91,11 +91,11 @@ void loop( void )
 	}
 	previous += PERIOD;
 	
-	int solar = (100 * adcValue) / ADCref;    // Solar's efficiency [%]
+	int solarIntensity = (100 * adcValue) / ADCref;    // Solar's intensity [%]
 	
-	sum += solar;                             // Note: Overflows after few years
+	sum += solarIntensity;                             // Note: Overflows after few years
 	counter++;
-	snprintf( line, sizeof(line), "%d: adc %4d - solar power %3d - cumulative %2ld\r\n", counter, adcValue, solar, sum / counter );
+	snprintf( line, sizeof(line), "%d: adc %4d - solar intensity %3d - cumulative %2ld\r\n", counter, adcValue, solarIntensity, sum / counter );
 
 	Serial.printf("%s", line);
 }
