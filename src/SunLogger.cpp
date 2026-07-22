@@ -24,10 +24,10 @@
 #define ADC_IOPIN  34      // Analog ADC1_CH6
 #define SPmax      950     // Sun's peak power [W/m2] at latitude 60 deg. north (summer time)
 
-float   Iref   = 0.020;    // Solar panel's measured "short circuit" current [A] at SPmax
+float   Iref   = 0.024;    // Solar panel's measured "short circuit" current [A] at SPmax
 float   Rshunt = 100.0;    // Current shunt resistance [ohm]: Select value <= (2.5V / Iref)
 //
-int     ADCref = 2000;     // Measured ADC value at Pmax (and  also at Iref)
+int     ADCref = 2960;     // Measured ADC value at SPmax (and  also at Iref)
 int     Ntaps  = 100;      // Filter coefficient
 
 int     adcValue;          // Work space variable

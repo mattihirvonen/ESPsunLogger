@@ -14,10 +14,10 @@ ESP32's ADC is enough linear for solar measurements in range 150 mV ... 2500 mV
 https://suncalc.org
 
 Calibration sequence
-- measure panel's unloaded open circuit voltage  (my case about 8.9 V)
-- measure panel's short circuit current (my case about 0.020 A)
+- measure panel's unloaded open circuit voltage  (my case about 10.8 V)
+- measure panel's short circuit current (my case about 0.024 A)
 - select current shunt resistor value about (2.5V / short circuit current [A])
-- example: 2.5V / 0.020 A = 125 ohm, we select 120 ohm standard resistor (enough close to 125 ohm)
+- example: 2.5V / 0.024 A = 104 ohm, we select 100 ohm standard resistor (enough close to 104 ohm)
 - install selected shunt resistor
 - read  application measured ADC value
 - update "*ADCref*" variable value with this measured ADC value
