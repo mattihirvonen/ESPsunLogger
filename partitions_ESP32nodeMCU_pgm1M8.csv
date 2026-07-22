@@ -1,0 +1,10 @@
+# ESP-IDF Partition Table
+# - https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html
+#
+# Name,   Type,  SubType,  Offset,    Size,   Flags
+nvs,      data,  nvs,      0x9000,    20K,
+otadata,  data,  ota,      0xe000,    8K,
+app0,     app,   ota_0,    0x10000,   1856k,
+app1,     app,   ota_1,    0x1e0000,  1856k,
+spiffs,   data,  spiffs,   0x3b0000,  256k,
+coredump, data,  coredump, 0x3f0000,  64K,
