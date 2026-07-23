@@ -109,9 +109,9 @@ void mqtt_reconnect( PubSubClient &mqttClient )
   while ( !mqttClient.connected() )
   {
     Serial.print("Attempting MQTT connection...");
-    if (mqttClient.connect("ESP32Client")) {
+    if ( mqttClient.connect("ESP32Client") ) {
       Serial.println("connected");
-      mqttClient.subscribe("test/topic");
+//    mqttClient.subscribe("#");
     } else {
       Serial.print("failed, rc=");
       Serial.print(mqttClient.state());

@@ -156,6 +156,7 @@ void loop( void )
 	
 	if (!mqttClient.connected()) {
 		mqtt_reconnect( mqttClient );
+		mqttClient.subscribe("solar/#");
 	}
 	else {
 		mqttClient.loop();
