@@ -30,6 +30,10 @@ Application can build using
 - Arduino IDE / CLI
 - VSCode + PIOARDUINO
 
+### External Libraries
+Application use following libraries
+- *PubSubClient* MQTT library by Nick O'Leary
+
 ### ToDo...
 - daily/hourly sun intensity history
 - WiFi/MQTT client to send measurement data to message broker

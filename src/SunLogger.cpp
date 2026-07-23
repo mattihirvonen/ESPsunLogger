@@ -16,15 +16,48 @@
 // - resistance value "Rshunt" is <= (3.0V / Iref)
 // - where "Iref" is measured solar panel's short circuit current at max solar intensity
 
+#include <stdint.h>
 #include <Arduino.h>
 #include <freertos/FreeRTOS.h>
 #include <WiFi.h>
-#include <stdint.h>
+#include <PubSubClient.h>     // MQTT
+#include "esp32lib.hpp"
 
 #define UNUSED  __attribute__((unused))
 
 #define ADC_IOPIN  34      // Analog ADC1_CH6
 #define SPmax      950     // Sun's peak power [W/m2] at latitude 60 deg. north (summer time)
+
+//-----------------------------------------------------------------------------------------
+
+// WiFi credentials - Set #if to zero when use local defines in this source
+#if 1
+#include "WiFiConf.h"   // Hide my secrets here !!!
+#else
+const char* ssid     = "YOUR_ROUTER_WiFi_SSID";
+const char* password = "YOUR_ROUTER_WiFi_PASSWORD";
+#endif
+
+//-----------------------------------------------------------------------------------------
+
+// Replace with your MQTT broker details
+const char*  mqtt_server = "192.168.1.184";  // "broker.hivemq.com";
+
+WiFiClient   espClient;
+PubSubClient mqttClient( espClient );
+
+void mqtt_callback(char* topic, byte* message, unsigned int length)
+{
+  Serial.print("Message arrived on topic: ");
+  Serial.println(topic);
+  String msg;
+  for (int i = 0; i < length; i++) {
+    msg += (char)message[i];
+  }
+  Serial.println("Message: " + msg);
+}
+
+//-----------------------------------------------------------------------------------------
 
 float   Iref   = 0.0215;   // Solar panel's measured "short circuit" current [A] at SPmax
 float   Rshunt = 100.0;    // Current shunt resistance [ohm]: Select value <= (2.5V / Iref)
@@ -32,7 +65,7 @@ float   Rshunt = 100.0;    // Current shunt resistance [ohm]: Select value <= (2
 int     ADCref = 2650;     // Measured ADC value at SPmax (and  also at Iref)
 int     Ntaps  = 30;       // Filter coefficient
 
-int     adcValue;          // Work space variable
+int     adcValue;          // Work space variable (filtered ADC data)
 
 
 // Dummy IIR style filtering
@@ -47,35 +80,45 @@ int floatingAverage( int32_t *sum, int x, int N )
 }
 
 
-void taskMeasure( void *pvParameters )
+void taskMeasure( void UNUSED *pvParameters )
 {
     #define TASK_PERIOD  10   // in tick(s) [ms]
     #define OFFSET_FIX   100  // 80 mV equals about 100 ADC units
     
-    static TickType_t  xLastWakeTime = 0;
-    static int32_t     sum           = 0;
+    static TickType_t  xLastWakeTime;
+    static int32_t     sum = 0;
 
-    if ( !xLastWakeTime ) {
-          xLastWakeTime = millis();  // Initializetion: Get current uptime
+    if ( ! xLastWakeTime ) {
+           xLastWakeTime = xTaskGetTickCount();  // Initializetion: Get current uptime
     }
-    // Wait for the next cycle.
-    BaseType_t UNUSED  xWasDelayed = xTaskDelayUntil( &xLastWakeTime, TASK_PERIOD );
 
-    // Note ADC result offset fix
-    int adc_result = analogRead( ADC_IOPIN ) + OFFSET_FIX;
-    
-    adcValue = floatingAverage( &sum, adc_result, Ntaps );
+    while ( 1 ) // Loop for ever
+    {
+        int adcResult;
+        
+        // Wait for the next cycle.
+        BaseType_t UNUSED  xWasDelayed = xTaskDelayUntil( &xLastWakeTime, TASK_PERIOD );
+
+        // Note ADC result offset fix
+        adcResult = analogRead( ADC_IOPIN ) + OFFSET_FIX;
+        adcValue  = floatingAverage( &sum, adcResult, Ntaps );
+        
+     // Serial.printf("Measure: adcResult=%d - adcValue=%d\n", adcResult, adcValue);
+    }
 }
 
 
 void setup( void )
 {
     Serial.begin( 115200 );
+
+    // Connect to Wi-Fi router
+    setup_wifi( ssid, password );
     
     xTaskCreate(
       taskMeasure,    // function name
       "Measure",      // task name (for debugging)
-      128,            // stack size in words (not bytes)
+      1024,            // stack size in words (not bytes)
       NULL,           // parameters to pass
       2,              // priority (1 = lowest)
       NULL            // task handle (optional)
@@ -102,7 +145,7 @@ void loop( void )
     
     sum += solarIntensity;                             // Note: Overflows after few years
     counter++;
-    snprintf( line, sizeof(line), "%d: adc %4d - solar intensity %3d - cumulative %2ld\r\n", counter, adcValue, solarIntensity, sum / counter );
+    snprintf( line, sizeof(line), "%5d: adc %4d - solar intensity %3d - cumulative %2ld\r\n", counter, adcValue, solarIntensity, sum / counter );
 
     Serial.printf("%s", line);
 }
