@@ -48,13 +48,13 @@ PubSubClient mqttClient( espClient );
 
 void mqtt_callback(char* topic, byte* message, unsigned int length)
 {
-  Serial.print("Message arrived on topic: ");
+  Serial.print("Message received - topic: ");
   Serial.println(topic);
   String msg;
   for (int i = 0; i < length; i++) {
     msg += (char)message[i];
   }
-  Serial.println("Message: " + msg);
+  Serial.println("Message received - data:  " + msg);
 }
 
 //-----------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ float   Iref   = 0.0215;   // Solar panel's measured "short circuit" current [A]
 float   Rshunt = 100.0;    // Current shunt resistance [ohm]: Select value <= (2.5V / Iref)
 //
 int     ADCref = 2650;     // Measured ADC value at SPmax (and  also at Iref)
-int     Ntaps  = 30;       // Filter coefficient
+int     Ntaps  = 20;       // Filter coefficient
 
 int     adcValue;          // Work space variable (filtered ADC data)
 
@@ -82,7 +82,7 @@ int floatingAverage( int32_t *sum, int x, int N )
 
 void taskMeasure( void UNUSED *pvParameters )
 {
-    #define TASK_PERIOD  10   // in tick(s) [ms]
+    #define TASK_PERIOD  100  // in tick(s) [ms]
     #define OFFSET_FIX   100  // 80 mV equals about 100 ADC units
     
     static TickType_t  xLastWakeTime;
@@ -114,6 +114,10 @@ void setup( void )
 
     // Connect to Wi-Fi router
     setup_wifi( ssid, password );
+	
+	// Connect to MQTT broker
+    setup_mqtt( mqttClient, mqtt_server, 1883 );
+    mqttClient.setCallback( mqtt_callback );
     
     xTaskCreate(
       taskMeasure,    // function name
@@ -148,4 +152,21 @@ void loop( void )
     snprintf( line, sizeof(line), "%5d: adc %4d - solar intensity %3d - cumulative %2ld\r\n", counter, adcValue, solarIntensity, sum / counter );
 
     Serial.printf("%s", line);
+	
+	if (!mqttClient.connected()) {
+		mqtt_reconnect( mqttClient );
+	}
+	else {
+		mqttClient.loop();
+
+		// Publish a message every 2 seconds
+		static unsigned long lastMsg = millis();
+		if (millis() - lastMsg >= 2000) {
+			lastMsg = millis();
+			String topic   = "test/topic";
+			String message = "Hello from ESP32!";
+			mqttClient.publish( topic.c_str(), message.c_str(), message.length()+1 );
+			Serial.println("Message published: " + message);
+		}
+	}
 }
