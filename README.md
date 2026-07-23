@@ -1,8 +1,16 @@
 
 # ESPsunLogger
 
-This is tiny demo project to measure solar intensity using ESP(32) processor and small solar cell.
+This is tiny/dirty two evening demo project to measure solar intensity using ESP(32) processor and small solar cell.
 In my test case I will use old Nokia (16xx model) phone's back plate containing small solar cell.
+Project's goal is to visualize how much clouds drop solar panel's output power.
+ESP32 ADC is not precision measurement instrument.
+Using careful calibration sequence results will be some how 10% accuracy.
+Solar intensites below 10% of "sun full power" will be more inaccurate. 
+
+When estimate true solar panel output, we have to understand also solar panel's orientation versus sun's direction.
+- azimuth (compass direction from north - degrees)
+- height (above horizon - degrees)
 
 ### Measuring Strategy
 We will measure solar cell's "short circuit" current using small current shunt resistor.
