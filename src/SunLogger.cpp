@@ -16,11 +16,12 @@
 // - resistance value "Rshunt" is <= (3.0V / Iref)
 // - where "Iref" is measured solar panel's short circuit current at max solar intensity
 
-#include <stdint.h>
 #include <Arduino.h>
-#include <freertos/FreeRTOS.h>
+#include <stdint.h>
+#include <string.h>
 #include <WiFi.h>
-#include <PubSubClient.h>     // MQTT
+#include <freertos/FreeRTOS.h>
+#include <PubSubClient.h>         // MQTT
 #include "esp32lib.hpp"
 
 #define UNUSED  __attribute__((unused))
@@ -116,7 +117,7 @@ void setup( void )
     setup_wifi( ssid, password );
 	
 	// Connect to MQTT broker
-    setup_mqtt( mqttClient, mqtt_server, 1883 );
+    mqttClient.setServer( mqtt_server, 1883 );
     mqttClient.setCallback( mqtt_callback );
     
     xTaskCreate(
@@ -163,10 +164,11 @@ void loop( void )
 		static unsigned long lastMsg = millis();
 		if (millis() - lastMsg >= 2000) {
 			lastMsg = millis();
-			String topic   = "test/topic";
+			String topic   = "solar/data";
 			String message = "Hello from ESP32!";
-			mqttClient.publish( topic.c_str(), message.c_str(), message.length()+1 );
-			Serial.println("Message published: " + message);
+			mqttClient.publish( topic.c_str(), line, strlen(line)+1 );
+			Serial.print  ("Message published: ");
+			Serial.println(line);
 		}
 	}
 }
