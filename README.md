@@ -35,5 +35,5 @@ Application use following libraries
 - *PubSubClient* MQTT library by Nick O'Leary
 
 ### ToDo...
+- configure MQTT client to send solar measurement data to message broker
 - daily/hourly sun intensity history
-- WiFi/MQTT client to send measurement data to message broker
