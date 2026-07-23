@@ -26,7 +26,7 @@
 
 #define UNUSED  __attribute__((unused))
 
-#define ADC_IOPIN  34      // Analog ADC1_CH6
+#define ADC_IOPIN  32      // Analog ADC1_CH4 - ESP32 DEVKIT V1
 #define SPmax      950     // Sun's peak power [W/m2] at latitude 60 deg. north (summer time)
 
 //-----------------------------------------------------------------------------------------
@@ -60,13 +60,13 @@ void mqtt_callback(char* topic, byte* message, unsigned int length)
 
 //-----------------------------------------------------------------------------------------
 
-float   Iref   = 0.0215;   // Solar panel's measured "short circuit" current [A] at SPmax
+float   Iref   = 0.0240;   // Solar panel's measured "short circuit" current [A] at SPmax
 float   Rshunt = 100.0;    // Current shunt resistance [ohm]: Select value <= (2.5V / Iref)
 //
-int     ADCref = 2650;     // Measured ADC value at SPmax (and  also at Iref)
+int     ADCref = 2400;     // Measured ADC value at SPmax
 int     Ntaps  = 20;       // Filter coefficient
 
-int     adcValue;          // Work space variable (filtered ADC data)
+int     adcValue;          // Work space variable (filtered raw ADC data)
 
 
 // Dummy IIR style filtering
@@ -81,10 +81,18 @@ int floatingAverage( int32_t *sum, int x, int N )
 }
 
 
+// Template function to linearize ADC measurement result
+int adcLinearize( int adcValue )
+{
+	#define OFFSET_FIX 100   // 80 mV equals about 100 ADC units
+
+	return adcValue + OFFSET_FIX;
+}
+
+
 void taskMeasure( void UNUSED *pvParameters )
 {
-    #define TASK_PERIOD  100  // in tick(s) [ms]
-    #define OFFSET_FIX   100  // 80 mV equals about 100 ADC units
+    #define TASK_PERIOD 50  // in tick(s) [ms]
     
     static TickType_t  xLastWakeTime;
     static int32_t     sum = 0;
@@ -95,16 +103,16 @@ void taskMeasure( void UNUSED *pvParameters )
 
     while ( 1 ) // Loop for ever
     {
-        int adcResult;
+        int adcRaw;
         
         // Wait for the next cycle.
         BaseType_t UNUSED  xWasDelayed = xTaskDelayUntil( &xLastWakeTime, TASK_PERIOD );
 
         // Note ADC result offset fix
-        adcResult = analogRead( ADC_IOPIN ) + OFFSET_FIX;
-        adcValue  = floatingAverage( &sum, adcResult, Ntaps );
+        adcRaw   = analogRead( ADC_IOPIN );
+        adcValue = floatingAverage( &sum, adcRaw, Ntaps );
         
-     // Serial.printf("Measure: adcResult=%d - adcValue=%d\n", adcResult, adcValue);
+     // Serial.printf("Measure: adcRaw=%d - adcValue=%d\n", adcRaw, adcValue);
     }
 }
 
@@ -128,6 +136,8 @@ void setup( void )
       2,              // priority (1 = lowest)
       NULL            // task handle (optional)
   );
+  
+  pinMode(ADC_IOPIN, INPUT);
 }
 
 
@@ -145,12 +155,13 @@ void loop( void )
         return;
     }
     previous += PERIOD;
+
+    int adcData        = adcLinearize(adcValue);      // Linearize filtered raw ADC value 
+    int solarIntensity = (100 * adcData) / ADCref;    // Solar's intensity [%]
     
-    int solarIntensity = (100 * adcValue) / ADCref;    // Solar's intensity [%]
-    
-    sum += solarIntensity;                             // Note: Overflows after few years
+    sum += solarIntensity;    // Note: Overflows after few years
     counter++;
-    snprintf( line, sizeof(line), "%5d: adc %4d - solar intensity %3d - cumulative %2ld\r\n", counter, adcValue, solarIntensity, sum / counter );
+    snprintf( line, sizeof(line), "%5d: adc %4d - solar intensity %3d - cumulative %2ld\r\n", counter, adcData, solarIntensity, sum / counter );
 
     Serial.printf("%s", line);
 	
@@ -161,9 +172,9 @@ void loop( void )
 	else {
 		mqttClient.loop();
 
-		// Publish a message every 2 seconds
+		// Publish a message every 1 seconds
 		static unsigned long lastMsg = millis();
-		if (millis() - lastMsg >= 2000) {
+		if (millis() - lastMsg >= 1000) {
 			lastMsg = millis();
 			String topic   = "solar/data";
 			String message = "Hello from ESP32!";
