@@ -73,10 +73,10 @@ int     adcValue;          // Work space variable (filtered raw ADC data)
 int floatingAverage( int32_t *sum, int x, int N )
 {
     int avg = *sum / N;
-    
+
     *sum -= avg;
     *sum += x;
-    
+
     return *sum / N;
 }
 
@@ -84,16 +84,25 @@ int floatingAverage( int32_t *sum, int x, int N )
 // Template function to linearize ADC measurement result
 int adcLinearize( int adcValue )
 {
-	#define OFFSET_FIX 100   // 80 mV equals about 100 ADC units
+    #define OFFSET_FIX 100   // 80 mV equals about 100 ADC units
 
-	return adcValue + OFFSET_FIX;
+    return adcValue + OFFSET_FIX;
+}
+
+
+// Return value: 1.0 per each 100% of sun intensity hour
+float cumulative_sum( int32_t sum )
+{
+    float value = sum;
+
+    return value / (100.0 * 3600.0);
 }
 
 
 void taskMeasure( void UNUSED *pvParameters )
 {
     #define TASK_PERIOD 50  // in tick(s) [ms]
-    
+
     static TickType_t  xLastWakeTime;
     static int32_t     sum = 0;
 
@@ -104,14 +113,14 @@ void taskMeasure( void UNUSED *pvParameters )
     while ( 1 ) // Loop for ever
     {
         int adcRaw;
-        
+
         // Wait for the next cycle.
         BaseType_t UNUSED  xWasDelayed = xTaskDelayUntil( &xLastWakeTime, TASK_PERIOD );
 
         // Note ADC result offset fix
         adcRaw   = analogRead( ADC_IOPIN );
         adcValue = floatingAverage( &sum, adcRaw, Ntaps );
-        
+
      // Serial.printf("Measure: adcRaw=%d - adcValue=%d\n", adcRaw, adcValue);
     }
 }
@@ -123,11 +132,11 @@ void setup( void )
 
     // Connect to Wi-Fi router
     setup_wifi( ssid, password );
-	
-	// Connect to MQTT broker
+
+    // Connect to MQTT broker
     mqttClient.setServer( mqtt_server, 1883 );
     mqttClient.setCallback( mqtt_callback );
-    
+
     xTaskCreate(
       taskMeasure,    // function name
       "Measure",      // task name (for debugging)
@@ -136,7 +145,7 @@ void setup( void )
       2,              // priority (1 = lowest)
       NULL            // task handle (optional)
   );
-  
+
   pinMode(ADC_IOPIN, INPUT);
 }
 
@@ -144,43 +153,47 @@ void setup( void )
 void loop( void )
 {
     #define PERIOD  1000L  // [ms]
-    
+
     static int      counter  = 0;
     static int32_t  sum      = 0;
     static int32_t  previous = 0;
            int32_t  now      = millis();
            char     line[256];
-    
+
     if ( (int32_t)(now - previous) < PERIOD ) {
         return;
     }
     previous += PERIOD;
+    counter  += 1;        // "seconds"
 
-    int adcData        = adcLinearize(adcValue);      // Linearize filtered raw ADC value 
+    int adcData        = adcLinearize(adcValue);      // Linearize filtered raw ADC value
     int solarIntensity = (100 * adcData) / ADCref;    // Solar's intensity [%]
-    
+
     sum += solarIntensity;    // Note: Overflows after few years
-    counter++;
     snprintf( line, sizeof(line), "%5d: adc %4d - solar intensity %3d - cumulative %2ld\r\n", counter, adcData, solarIntensity, sum / counter );
-
     Serial.printf("%s", line);
-	
-	if (!mqttClient.connected()) {
-		mqtt_reconnect( mqttClient );
-		mqttClient.subscribe("solar/#");
-	}
-	else {
-		mqttClient.loop();
 
-		// Publish a message every 1 seconds
-		static unsigned long lastMsg = millis();
-		if (millis() - lastMsg >= 1000) {
-			lastMsg = millis();
-			String topic   = "solar/data";
-			String message = "Hello from ESP32!";
-			mqttClient.publish( topic.c_str(), line, strlen(line)+1 );
-			Serial.print  ("Message published: ");
-			Serial.println(line);
-		}
-	}
+    if (!mqttClient.connected()) {
+        mqtt_reconnect( mqttClient );
+        mqttClient.subscribe("solar/#");
+    }
+    else {
+        mqttClient.loop();
+
+        // Publish a message every 1 seconds
+        static unsigned long lastMsg = millis();
+        if (millis() - lastMsg >= 1000) {
+            lastMsg = millis();
+
+            String topic      = "solar/data";
+            float  cumulative = cumulative_sum( sum );
+
+            // GnuPlot compatible data row:
+            snprintf( line, sizeof(line), "%5d, %3d,  %.3f\n", counter, solarIntensity, cumulative );
+            mqttClient.publish( topic.c_str(), line, strlen(line)+1 );
+
+            Serial.print  ("Message published: ");
+            Serial.println(line);
+        }
+    }
 }
