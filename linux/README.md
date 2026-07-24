@@ -6,6 +6,8 @@
 Start mqttLogger with command line comman and redirect output into file
 - mqttLogger > sundata.log &
 
+Use *make* command to build Linux version of mqttLogger application
+
 ### Convert UNIX Timestamp (seconds) to Date
 Example commands:
 - date -ud @1784863249

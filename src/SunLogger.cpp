@@ -189,7 +189,7 @@ void loop( void )
             float  cumulative = cumulative_sum( sum );
 
             // GnuPlot compatible data row:
-            snprintf( line, sizeof(line), "%5d, %3d,  %.3f\n", counter, solarIntensity, cumulative );
+            snprintf( line, sizeof(line), "%5d, %4d, %3d,  %.3f\n", counter, adcData, solarIntensity, cumulative );
             mqttClient.publish( topic.c_str(), line, strlen(line)+1 );
 
             Serial.print  ("Message published: ");
