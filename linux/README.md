@@ -1,12 +1,12 @@
 
 # mqttLogger 
 **mqttLogger** command line option(s)
-- __*-t topic*__ set message topic filter (defaultis "#")
+- __*-t topic*__ set message topic filter (default is all by wild card  __*#*__)
 
 Start mqttLogger with command line comman and redirect output into file
 - mqttLogger > sundata.log &
 
-Use *make* command to build Linux version of mqttLogger application
+Use __*make*__ command to build Linux version of mqttLogger application
 
 ### Convert UNIX Timestamp (seconds) to Date
 Example commands:
