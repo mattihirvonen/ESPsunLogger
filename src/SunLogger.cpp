@@ -26,8 +26,9 @@
 
 #define UNUSED  __attribute__((unused))
 
-#define ADC_IOPIN  32      // Analog ADC1_CH4 - ESP32 DEVKIT V1
-#define SPmax      950     // Sun's peak power [W/m2] at latitude 60 deg. north (summer time)
+#define ADC_RSHUNT  32      // GPIO pin: Analog ADC1_CH4 - ESP32 DEVKIT V1
+#define ADC_DIODE   34      // GPIO pin: Analog ADC1_CH6 - ESP32 DEVKIT V1
+#define SPmax       950     // Sun's peak power [W/m2] at latitude 60 deg. north (summer time)
 
 //-----------------------------------------------------------------------------------------
 
@@ -60,13 +61,21 @@ void mqtt_callback(char* topic, byte* message, unsigned int length)
 
 //-----------------------------------------------------------------------------------------
 
-float   Iref   = 0.0270;   // Solar panel's measured "short circuit" current [A] at SPmax
-float   Rshunt = 80.0;     // Current shunt resistance [ohm]: Select value <= (2.5V / Iref)
-//
-int     ADCref = 2150;     // Measured ADC value at SPmax
-int     Ntaps  = 20;       // Filter coefficient
+typedef struct
+{
+    int     diode;
+    int     Rshunt;
+    int     diff;
+}  adcValue_t;
 
-int     adcValue;          // Work space variable (filtered raw ADC data)
+
+float       Iref   = 0.0270;   // Solar panel's measured "short circuit" current [A] at SPmax
+float       Rshunt = 80.0;     // Current shunt resistance [ohm]: Select value <= (2.5V / Iref)
+//
+int         ADCref = 2150;     // Measured ADC value at SPmax (2000)
+int         Ntaps  = 20;       // Filter coefficient
+//
+adcValue_t  adcValue;          // Work space variable (filtered ADC data)
 
 
 // Dummy IIR style filtering
@@ -80,19 +89,19 @@ int floatingAverage( int32_t *sum, int x, int N )
     return *sum / N;
 }
 
-
+/*
 // Template function to linearize ADC measurement result
-int adcLinearize( int adcValue )
+int adcLinearize( int mV )
 {
-    // ADC linear range 200 mV ... 2500 mV:
+    // Raw: ADC linear range 200 mV ... 2500 mV:
     // - 2586/2.2V - 115/0.2V -> 1235/V
     // - 2961/2.5V - 115/0.2V -> 1238/V
     // - 2961/2.5V - 240/0.3V -> 1237/V
 
-    // Schottky diode voltage drop (abt 300 mV) with ADC dead zone
-    return (adcValue > 220) ? adcValue - 220 : 0;   // 250 ??
+    // Schottky diode voltage drop (abt 300 mV at 1 mA)
+    return (mV > 250) ? mV : 0;
 }
-
+*/
 
 // Return value: 1.0 per each 100% of sun intensity hour
 float cumulative_sum( int32_t sum )
@@ -116,16 +125,23 @@ void taskMeasure( void UNUSED *pvParameters )
 
     while ( 1 ) // Loop for ever
     {
-        int adcRaw;
+        #define DIODE_mV  250   // BAT85 typical: 250 mV / 0.3 mA - 300 mV / 1 mA
 
         // Wait for the next cycle.
         BaseType_t UNUSED  xWasDelayed = xTaskDelayUntil( &xLastWakeTime, TASK_PERIOD );
 
-        // Note ADC result offset fix
-        adcRaw   = analogRead( ADC_IOPIN );
-        adcValue = floatingAverage( &sum, adcRaw, Ntaps );
-
-     // Serial.printf("Measure: adcRaw=%d - adcValue=%d\n", adcRaw, adcValue);
+        // ADC result offset and gain fixes required with raw data
+    //  int adcRaw      = analogRead( ADC_RSHUNT );            // Uncalibrated values
+        adcValue.Rshunt = analogReadMilliVolts( ADC_RSHUNT );  // Factory calibrated !!!
+        #if 0
+        adcValue.diode  = analogReadMilliVolts( ADC_DIODE  );  // Factory calibrated !!!
+        #else
+        adcValue.diode  = DIODE_mV;                            // Single channel ADC measurement
+        #endif
+        if ( adcValue.Rshunt < adcValue.diode ) {
+             adcValue.Rshunt = adcValue.diode;
+        }
+        adcValue.diff = floatingAverage( &sum, adcValue.Rshunt - adcValue.diode, Ntaps );
     }
 }
 
@@ -150,7 +166,8 @@ void setup( void )
       NULL            // task handle (optional)
   );
 
-  pinMode(ADC_IOPIN, INPUT);
+  pinMode(ADC_DIODE,  INPUT);
+  pinMode(ADC_RSHUNT, INPUT);
 }
 
 
@@ -170,11 +187,11 @@ void loop( void )
     previous += PERIOD;
     counter  += 1;        // "seconds"
 
-    int adcData        = adcLinearize(adcValue);      // Linearize filtered raw ADC value
-    int solarIntensity = (100 * adcData) / ADCref;    // Solar's intensity [%]
-
+    int adcData        =  adcValue.diff;                // Filtered mV ADC value
+    int solarIntensity = (100 * adcData) / ADCref;      // Solar's intensity [%]
+    
     sum += solarIntensity;    // Note: Overflows after few years
-    snprintf( line, sizeof(line), "%5d: adc %4d - solar intensity %3d - cumulative %2ld\r\n", counter, adcValue, solarIntensity, sum / counter );
+    snprintf( line, sizeof(line), "%5d: adc %4d - solar intensity %3d - cumulative %2ld\r\n", counter, adcData, solarIntensity, sum / counter );
     Serial.printf("%s", line);
 
     if (!mqttClient.connected()) {
@@ -191,9 +208,14 @@ void loop( void )
 
             String topic      = "solar/data";
             float  cumulative = cumulative_sum( sum );
+            
+            int mV = analogReadMilliVolts( ADC_RSHUNT );  // Debug testing
 
             // GnuPlot compatible data row:
-            snprintf( line, sizeof(line), "%6d  %4d  %3d  %.3f\n", counter, adcData, solarIntensity, cumulative );
+//          snprintf( line, sizeof(line), "%6d  %4d  %3d  %.3f\n", counter, adcData, solarIntensity, cumulative );
+            snprintf( line, sizeof(line), "%6d  %4d  %3d  %.3f  %4d  %4d  %4d\n", 
+                      counter, adcData, solarIntensity, cumulative, adcValue.Rshunt, adcValue.diode, mV );
+
             mqttClient.publish( topic.c_str(), line, strlen(line)+1 );
 
             Serial.print  ("Message published: ");
