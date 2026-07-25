@@ -60,10 +60,10 @@ void mqtt_callback(char* topic, byte* message, unsigned int length)
 
 //-----------------------------------------------------------------------------------------
 
-float   Iref   = 0.0240;   // Solar panel's measured "short circuit" current [A] at SPmax
-float   Rshunt = 100.0;    // Current shunt resistance [ohm]: Select value <= (2.5V / Iref)
+float   Iref   = 0.0270;   // Solar panel's measured "short circuit" current [A] at SPmax
+float   Rshunt = 80.0;     // Current shunt resistance [ohm]: Select value <= (2.5V / Iref)
 //
-int     ADCref = 2400;     // Measured ADC value at SPmax
+int     ADCref = 2150;     // Measured ADC value at SPmax
 int     Ntaps  = 20;       // Filter coefficient
 
 int     adcValue;          // Work space variable (filtered raw ADC data)
@@ -84,9 +84,13 @@ int floatingAverage( int32_t *sum, int x, int N )
 // Template function to linearize ADC measurement result
 int adcLinearize( int adcValue )
 {
-    #define OFFSET_FIX 100   // 80 mV equals about 100 ADC units
+    // ADC linear range 200 mV ... 2500 mV:
+    // - 2586/2.2V - 115/0.2V -> 1235/V
+    // - 2961/2.5V - 115/0.2V -> 1238/V
+    // - 2961/2.5V - 240/0.3V -> 1237/V
 
-    return adcValue + OFFSET_FIX;
+    // Schottky diode voltage drop (abt 300 mV) with ADC dead zone
+    return (adcValue > 220) ? adcValue - 220 : 0;   // 250 ??
 }
 
 
@@ -170,7 +174,7 @@ void loop( void )
     int solarIntensity = (100 * adcData) / ADCref;    // Solar's intensity [%]
 
     sum += solarIntensity;    // Note: Overflows after few years
-    snprintf( line, sizeof(line), "%5d: adc %4d - solar intensity %3d - cumulative %2ld\r\n", counter, adcData, solarIntensity, sum / counter );
+    snprintf( line, sizeof(line), "%5d: adc %4d - solar intensity %3d - cumulative %2ld\r\n", counter, adcValue, solarIntensity, sum / counter );
     Serial.printf("%s", line);
 
     if (!mqttClient.connected()) {
@@ -189,7 +193,7 @@ void loop( void )
             float  cumulative = cumulative_sum( sum );
 
             // GnuPlot compatible data row:
-            snprintf( line, sizeof(line), "%5d, %4d, %3d,  %.3f\n", counter, adcData, solarIntensity, cumulative );
+            snprintf( line, sizeof(line), "%6d  %4d  %3d  %.3f\n", counter, adcData, solarIntensity, cumulative );
             mqttClient.publish( topic.c_str(), line, strlen(line)+1 );
 
             Serial.print  ("Message published: ");

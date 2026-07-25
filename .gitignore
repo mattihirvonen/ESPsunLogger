@@ -1,2 +1,4 @@
 WiFiConf.h
 mqttLogger
+history.txt
+*.log
