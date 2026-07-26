@@ -72,7 +72,7 @@ typedef struct
 float       Iref   = 0.0270;   // Solar panel's measured "short circuit" current [A] at SPmax
 float       Rshunt = 80.0;     // Current shunt resistance [ohm]: Select value <= (2.5V / Iref)
 //
-int         ADCref = 2150;     // Measured ADC value at SPmax (2000)
+int         ADCref = 2300;     // Measured ADC value at SPmax (2000)
 int         Ntaps  = 20;       // Filter coefficient
 //
 adcValue_t  adcValue;          // Work space variable (filtered ADC data)
@@ -117,7 +117,9 @@ void taskMeasure( void UNUSED *pvParameters )
     #define TASK_PERIOD 50  // in tick(s) [ms]
 
     static TickType_t  xLastWakeTime;
-    static int32_t     sum = 0;
+    static int32_t     sum_shunt = 0, sum_diode = 0, sum_diff = 0;
+           int          mV_shunt,      mV_diode,      mV_diff;
+    //     int          adcRaw;
 
     if ( ! xLastWakeTime ) {
            xLastWakeTime = xTaskGetTickCount();  // Initializetion: Get current uptime
@@ -131,17 +133,21 @@ void taskMeasure( void UNUSED *pvParameters )
         BaseType_t UNUSED  xWasDelayed = xTaskDelayUntil( &xLastWakeTime, TASK_PERIOD );
 
         // ADC result offset and gain fixes required with raw data
-    //  int adcRaw      = analogRead( ADC_RSHUNT );            // Uncalibrated values
-        adcValue.Rshunt = analogReadMilliVolts( ADC_RSHUNT );  // Factory calibrated !!!
+    //  adcRaw   = analogRead( ADC_RSHUNT );               // Uncalibrated value
+        mV_shunt = analogReadMilliVolts( ADC_RSHUNT );     // Factory calibrated !!!
         #if 0
-        adcValue.diode  = analogReadMilliVolts( ADC_DIODE  );  // Factory calibrated !!!
+        mV_diode = analogReadMilliVolts( ADC_DIODE  );     // Factory calibrated !!!
         #else
-        adcValue.diode  = DIODE_mV;                            // Single channel ADC measurement
+        mV_diode = DIODE_mV;                               // Single channel ADC measurement
         #endif
+        // Filter measurement results
+        adcValue.Rshunt = floatingAverage( &sum_shunt, mV_shunt, Ntaps );
+        adcValue.diode  = floatingAverage( &sum_diode, mV_diode, Ntaps );
+
         if ( adcValue.Rshunt < adcValue.diode ) {
              adcValue.Rshunt = adcValue.diode;
         }
-        adcValue.diff = floatingAverage( &sum, adcValue.Rshunt - adcValue.diode, Ntaps );
+        adcValue.diff = floatingAverage( &sum_diff,  adcValue.Rshunt - adcValue.diode, Ntaps );
     }
 }
 
@@ -187,9 +193,9 @@ void loop( void )
     previous += PERIOD;
     counter  += 1;        // "seconds"
 
-    int adcData        =  adcValue.diff;                // Filtered mV ADC value
+    int adcData        =  adcValue.diff;                // Filtered ADC [mV] value
     int solarIntensity = (100 * adcData) / ADCref;      // Solar's intensity [%]
-    
+
     sum += solarIntensity;    // Note: Overflows after few years
     snprintf( line, sizeof(line), "%5d: adc %4d - solar intensity %3d - cumulative %2ld\r\n", counter, adcData, solarIntensity, sum / counter );
     Serial.printf("%s", line);
@@ -208,12 +214,12 @@ void loop( void )
 
             String topic      = "solar/data";
             float  cumulative = cumulative_sum( sum );
-            
+
             int mV = analogReadMilliVolts( ADC_RSHUNT );  // Debug testing
 
             // GnuPlot compatible data row:
 //          snprintf( line, sizeof(line), "%6d  %4d  %3d  %.3f\n", counter, adcData, solarIntensity, cumulative );
-            snprintf( line, sizeof(line), "%6d  %4d  %3d  %.3f  %4d  %4d  %4d\n", 
+            snprintf( line, sizeof(line), "%6d  %4d  %3d  %.3f  %4d  %4d  %4d\n",
                       counter, adcData, solarIntensity, cumulative, adcValue.Rshunt, adcValue.diode, mV );
 
             mqttClient.publish( topic.c_str(), line, strlen(line)+1 );
