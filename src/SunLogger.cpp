@@ -27,7 +27,7 @@
 #define UNUSED  __attribute__((unused))
 
 #define ADC_CHANNELS   2      // 2: shunt and diode // 1: only shunt (fix voltage diode)
-#define ADC_RSHUNT    34      // GPIO pin: Analog ADC1_CH6 - ESP32 DEVKIT V1
+#define ADC_PANEL     34      // GPIO pin: Analog ADC1_CH6 - ESP32 DEVKIT V1
 #define ADC_DIODE     35      // GPIO pin: Analog ADC1_CH7 - ESP32 DEVKIT V1
 #define SPmax        950      // Sun's peak power [W/m2] at latitude 60 deg. north (summer time)
 
@@ -64,8 +64,8 @@ void mqtt_callback(char* topic, byte* message, unsigned int length)
 
 typedef struct
 {
+    int     panel;
     int     diode;
-    int     Rshunt;
     int     diff;
 }  adcValue_t;
 
@@ -118,8 +118,8 @@ void taskMeasure( void UNUSED *pvParameters )
     #define TASK_PERIOD 50  // in tick(s) [ms]
 
     static TickType_t  xLastWakeTime;
-    static int32_t     sum_shunt = 0, sum_diode = 0, sum_diff = 0;
-           int          mV_shunt,      mV_diode,      mV_diff;
+    static int32_t     sum_panel = 0, sum_diode = 0, sum_diff = 0;
+           int          mV_panel,      mV_diode,      mV_diff;
     //     int          adcRaw;
 
     if ( ! xLastWakeTime ) {
@@ -134,24 +134,24 @@ void taskMeasure( void UNUSED *pvParameters )
         BaseType_t UNUSED  xWasDelayed = xTaskDelayUntil( &xLastWakeTime, TASK_PERIOD );
 
         // ADC result offset and gain fixes required with raw data
-    //  adcRaw   = analogRead( ADC_RSHUNT );               // Uncalibrated value
-        mV_shunt = analogReadMilliVolts( ADC_RSHUNT );     // Factory calibrated !!!
+    //  adcRaw   = analogRead( ADC_PANEL );                // Uncalibrated value
+        mV_panel = analogReadMilliVolts( ADC_PANEL );      // Factory calibrated !!!
         #if  ADC_CHANNELS > 1
-        mV_diode = analogReadMilliVolts( ADC_DIODE  );     // Factory calibrated !!!
+        mV_diode = analogReadMilliVolts( ADC_DIODE );      // Factory calibrated !!!
         #else
         mV_diode = DIODE_mV;                               // Single channel ADC measurement
         #endif
         // Filter measurement results
-        adcValue.Rshunt = floatingAverage( &sum_shunt, mV_shunt, Ntaps );
-        adcValue.diode  = floatingAverage( &sum_diode, mV_diode, Ntaps );
+        adcValue.panel = floatingAverage( &sum_panel, mV_panel, Ntaps );
+        adcValue.diode = floatingAverage( &sum_diode, mV_diode, Ntaps );
 
         if ( adcValue.diode < 250 ) {  // Schottky diode BAT85
              adcValue.diode = 250;
         }
-        if ( adcValue.Rshunt < adcValue.diode ) {
-             adcValue.Rshunt = adcValue.diode;
+        if ( adcValue.panel < adcValue.diode ) {
+             adcValue.panel = adcValue.diode;
         }
-        adcValue.diff = floatingAverage( &sum_diff,  adcValue.Rshunt - adcValue.diode, Ntaps );
+        adcValue.diff = floatingAverage( &sum_diff,  adcValue.panel - adcValue.diode, Ntaps );
     }
 }
 
@@ -176,8 +176,8 @@ void setup( void )
       NULL            // task handle (optional)
   );
 
-  pinMode(ADC_DIODE,  INPUT);
-  pinMode(ADC_RSHUNT, INPUT);
+  pinMode(ADC_DIODE, INPUT);
+  pinMode(ADC_PANEL, INPUT);
 }
 
 
@@ -197,7 +197,7 @@ void loop( void )
     previous += PERIOD;
     counter  += 1;        // "seconds"
 
-    int adcData        =  adcValue.diff;                // Filtered ADC [mV] value
+    int adcData        =  adcValue.diff;                // Filtered ADC [mV] value of shunt resistor
     int solarIntensity = (100 * adcData) / ADCref;      // Solar's intensity [%]
 
     sum += solarIntensity;    // Note: Overflows after few years
@@ -219,12 +219,12 @@ void loop( void )
             String topic      = "solar/data";
             float  cumulative = cumulative_sum( sum );
 
-            int mV = analogReadMilliVolts( ADC_RSHUNT );  // Debug testing
+            int mV = analogReadMilliVolts( ADC_PANEL );  // Debug testing
 
             // GnuPlot compatible data row:
 //          snprintf( line, sizeof(line), "%6d  %4d  %3d  %.3f\n", counter, adcData, solarIntensity, cumulative );
             snprintf( line, sizeof(line), "%6d  %4d  %3d  %.3f  %4d  %4d  %4d\n",
-                      counter, adcData, solarIntensity, cumulative, adcValue.Rshunt, adcValue.diode, adcValue.Rshunt - mV );
+                      counter, adcData, solarIntensity, cumulative, adcValue.panel, adcValue.diode, adcValue.panel - mV );
 
             mqttClient.publish( topic.c_str(), line, strlen(line)+1 );
 
