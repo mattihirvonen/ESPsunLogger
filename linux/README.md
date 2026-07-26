@@ -42,14 +42,14 @@ Load numerical matrix data (text file) into memory matrix "*__M1__*"
 - M2 = load('sundata2.log');
 
 Add time shift value to the first column of matrix
-- timeshift = 6017 / 3600; &emsp;*% calculate time shift in seconds to hours*
+- timeshift = 6017 / 3600; &emsp; *% calculate time shift in seconds to hours*
 - M2(:, 1) = M2(:, 1) + timeshift;
 
 Display result
 - disp(M2);
 
 Vertical concatenation (append rows)
-- M3 = \[M1; M2\]; &emsp;*% Append M2 below M1*
+- M3 = \[M1; M2\]; &emsp; *% Append M2 below M1*
 
 Save matrix to a text file in ASCII format
 - save('matrix.txt', 'M3', '-ascii');
@@ -57,15 +57,14 @@ Save matrix to a text file in ASCII format
 - save('matrix.txt', 'M3', '-ascii', '-double');
 - dlmwrite('matrix.txt', M3, 'delimiter', '\t', 'precision', 6);
 
-
 Some plot commands
-- plot(M3(:, 1), M3(:, 3));                  % Plot the curve
-- xlabel('Time \[h\]');                      % Label X-axis
-- ylabel('\[mV\]');                          % Label Y-axis
+- plot(M3(:, 1), M3(:, 3));                  &emsp; *% Plot the curve*
+- xlabel('Time \[h\]');                      &emsp; *% Label X-axis*
+- ylabel('\[mV\]');                          &emsp; *% Label Y-axis*
 - title('Solar Intensity Measurement');
-- grid on;                                   % Add grid
-- hold on;                                   % Add / hold multiple plots
-- plot(M3(:, 1), M3(:, 6));                  % Plot the curve
-- plot(M3(:, 1), M3(:, 6));                  % Plot the curve
+- grid on;                                   &emsp; *% Add grid*
+- hold on;                                   &emsp; *% Add / hold multiple plots*
+- plot(M3(:, 1), M3(:, 6));                  &emsp; *% Plot the curve*
+- plot(M3(:, 1), M3(:, 7));                  &emsp; *% Plot the curve*
 - hold off;
 - legend('Udiff', 'Urshunt', 'Udiode');
