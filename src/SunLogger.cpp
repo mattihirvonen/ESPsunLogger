@@ -26,9 +26,10 @@
 
 #define UNUSED  __attribute__((unused))
 
-#define ADC_RSHUNT  32      // GPIO pin: Analog ADC1_CH4 - ESP32 DEVKIT V1
-#define ADC_DIODE   34      // GPIO pin: Analog ADC1_CH6 - ESP32 DEVKIT V1
-#define SPmax       950     // Sun's peak power [W/m2] at latitude 60 deg. north (summer time)
+#define ADC_CHANNELS   2      // 2: shunt and diode // 1: only shunt (fix voltage diode)
+#define ADC_RSHUNT    34      // GPIO pin: Analog ADC1_CH6 - ESP32 DEVKIT V1
+#define ADC_DIODE     35      // GPIO pin: Analog ADC1_CH7 - ESP32 DEVKIT V1
+#define SPmax        950      // Sun's peak power [W/m2] at latitude 60 deg. north (summer time)
 
 //-----------------------------------------------------------------------------------------
 
@@ -127,7 +128,7 @@ void taskMeasure( void UNUSED *pvParameters )
 
     while ( 1 ) // Loop for ever
     {
-        #define DIODE_mV  250   // BAT85 typical: 250 mV / 0.3 mA - 300 mV / 1 mA
+        #define DIODE_mV  265   // BAT85 typical: 250 mV / 0.3 mA - 300 mV / 1 mA
 
         // Wait for the next cycle.
         BaseType_t UNUSED  xWasDelayed = xTaskDelayUntil( &xLastWakeTime, TASK_PERIOD );
@@ -135,7 +136,7 @@ void taskMeasure( void UNUSED *pvParameters )
         // ADC result offset and gain fixes required with raw data
     //  adcRaw   = analogRead( ADC_RSHUNT );               // Uncalibrated value
         mV_shunt = analogReadMilliVolts( ADC_RSHUNT );     // Factory calibrated !!!
-        #if 0
+        #if  ADC_CHANNELS > 1
         mV_diode = analogReadMilliVolts( ADC_DIODE  );     // Factory calibrated !!!
         #else
         mV_diode = DIODE_mV;                               // Single channel ADC measurement
@@ -144,6 +145,9 @@ void taskMeasure( void UNUSED *pvParameters )
         adcValue.Rshunt = floatingAverage( &sum_shunt, mV_shunt, Ntaps );
         adcValue.diode  = floatingAverage( &sum_diode, mV_diode, Ntaps );
 
+        if ( adcValue.diode < 250 ) {  // Schottky diode BAT85
+             adcValue.diode = 250;
+        }
         if ( adcValue.Rshunt < adcValue.diode ) {
              adcValue.Rshunt = adcValue.diode;
         }
@@ -220,7 +224,7 @@ void loop( void )
             // GnuPlot compatible data row:
 //          snprintf( line, sizeof(line), "%6d  %4d  %3d  %.3f\n", counter, adcData, solarIntensity, cumulative );
             snprintf( line, sizeof(line), "%6d  %4d  %3d  %.3f  %4d  %4d  %4d\n",
-                      counter, adcData, solarIntensity, cumulative, adcValue.Rshunt, adcValue.diode, mV );
+                      counter, adcData, solarIntensity, cumulative, adcValue.Rshunt, adcValue.diode, adcValue.Rshunt - mV );
 
             mqttClient.publish( topic.c_str(), line, strlen(line)+1 );
 
