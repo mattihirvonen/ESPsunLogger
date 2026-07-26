@@ -43,7 +43,7 @@ Application use following libraries
 - *PubSubClient* MQTT library by Nick O'Leary
 
 ### Data Post Prosessing And Visualization
-Read linux/README.md file.
+Read file *linux/README.md*
 
 ### ToDo...
 - daily/hourly sun intensity history

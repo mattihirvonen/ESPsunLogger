@@ -67,4 +67,4 @@ Some plot commands
 - plot(M3(:, 1), M3(:, 6));                  &emsp; *% Plot the curve*
 - plot(M3(:, 1), M3(:, 7));                  &emsp; *% Plot the curve*
 - hold off;
-- legend('Udiff', 'Urshunt', 'Udiode');
+- legend('Ushunt', 'Upanel', 'Udiode');
