@@ -326,7 +326,7 @@ int handleMQTTmessage( char *buffer, int bytes_received )
         time_t seconds = time(NULL) - conf.start_time;
 
         printTime( seconds, conf.time_scale );
-        printf(",  %s", buffer);
+        printf("  %s", buffer);
 //      printf("\n");
         fflush( NULL );
         sync();
