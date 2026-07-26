@@ -6,7 +6,7 @@ In my test case I will use old Nokia (16xx model) phone's back plate containing 
 Project's goal is to visualize how much clouds drop solar panel's output power.
 ESP32 ADC is not precision measurement instrument.
 Using careful calibration sequence results will be some how 10% accuracy.
-Solar intensites below 10% of "sun full power" will be more inaccurate. 
+Solar intensites below 10% of "sun full power" will be more inaccurate.
 
 When estimate true solar panel output, we have to understand also solar panel's orientation versus sun's direction.
 - azimuth (compass direction from north - degrees)
@@ -29,7 +29,7 @@ Calibration sequence
 - example: 2.0V / 0.024 A = 83 ohm, we select 82 ohm standard resistor (enough close to 83 ohm)
 - install selected shunt resistor as load to solar panel
 - check that loaded panel voltage over shunt resistor and (schottky) diode is less than 3.2V (when sun shine at full power)
-- connect panel+shunt resistor to ESP processor 
+- connect panel+shunt resistor to ESP processor
 - read  application measured ADC value
 - update "*ADCref*" variable value with this measured ADC value
 
@@ -45,3 +45,19 @@ Application use following libraries
 ### ToDo...
 - configure MQTT client to send solar measurement data to message broker
 - daily/hourly sun intensity history
+
+
+### Octave Commands
+Load numerical matrix data (text file) into memory matrix "*__[M1__*"
+- M1 = load('sundata1.log');
+- M2 = load('sundata2.log');
+
+Add time shift value to the first column of matrix
+- timeshift = 6017 / 3600; &emsp;*% calculate time shift in seconds to hours*
+- M2(:, 1) = M2(:, 1) + timeshift;
+
+Display result
+- disp(M2);
+
+Vertical concatenation (append rows)
+- M3 = \[M1; M2\]; &emsp;*% Append M2 below M1*
