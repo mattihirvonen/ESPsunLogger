@@ -1,5 +1,5 @@
 
-# mqttLogger 
+# mqttLogger
 **mqttLogger** command line option(s)
 - __*-t topic*__ set message topic filter (default is all by wild card  __*#*__)
 
@@ -14,7 +14,6 @@ Example commands:
 - *Fri Jul 24 03:20:49 UTC 2026*
 - date -d @1784863249
 - *Fri Jul 24 06:20:49 EST+3 2026*
-
 
 ### Screen Command to Manage  mqttLogger in Backround
 Use Screen command to put logger in background.
@@ -37,3 +36,23 @@ Resume sceen
 Resume screen by ID
 - screen -r 1135
 
+### Octave Command Examples
+Load numerical matrix data (text file) into memory matrix "*__M1__*"
+- M1 = load('sundata1.log');
+- M2 = load('sundata2.log');
+
+Add time shift value to the first column of matrix
+- timeshift = 6017 / 3600; &emsp;*% calculate time shift in seconds to hours*
+- M2(:, 1) = M2(:, 1) + timeshift;
+
+Display result
+- disp(M2);
+
+Vertical concatenation (append rows)
+- M3 = \[M1; M2\]; &emsp;*% Append M2 below M1*
+
+Save matrix to a text file in ASCII format
+- save('matrix.txt', 'M3', '-ascii');
+- save('matrix.txt', 'M3', '-ascii', '-append');
+- save('matrix.txt', 'M3', '-ascii', '-double');
+- dlmwrite('matrix.txt', M3, 'delimiter', '\t', 'precision', 6);

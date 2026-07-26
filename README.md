@@ -25,7 +25,7 @@ ESP32's ADC is enough linear for solar measurements in range 150 mV ... 2500 mV
 Calibration sequence
 - measure panel's raw unloaded open circuit voltage (my case about 10.8 V which can damage ESP processor)
 - measure panel's raw short circuit current (my case about 0.027 A measured with multimeter)
-- select current shunt resistor value about (2.0V / short circuit current [A])
+- select current shunt resistor value about (2.0V / short circuit current \[A\])
 - example: 2.0V / 0.024 A = 83 ohm, we select 82 ohm standard resistor (enough close to 83 ohm)
 - install selected shunt resistor as load to solar panel
 - check that loaded panel voltage over shunt resistor and (schottky) diode is less than 3.2V (when sun shine at full power)
@@ -42,22 +42,8 @@ Application can build using
 Application use following libraries
 - *PubSubClient* MQTT library by Nick O'Leary
 
+### Data Post Prosessing And Visualization
+Read linux/README.md file.
+
 ### ToDo...
-- configure MQTT client to send solar measurement data to message broker
 - daily/hourly sun intensity history
-
-
-### Octave Commands
-Load numerical matrix data (text file) into memory matrix "*__[M1__*"
-- M1 = load('sundata1.log');
-- M2 = load('sundata2.log');
-
-Add time shift value to the first column of matrix
-- timeshift = 6017 / 3600; &emsp;*% calculate time shift in seconds to hours*
-- M2(:, 1) = M2(:, 1) + timeshift;
-
-Display result
-- disp(M2);
-
-Vertical concatenation (append rows)
-- M3 = \[M1; M2\]; &emsp;*% Append M2 below M1*
