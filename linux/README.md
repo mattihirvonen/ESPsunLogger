@@ -56,3 +56,16 @@ Save matrix to a text file in ASCII format
 - save('matrix.txt', 'M3', '-ascii', '-append');
 - save('matrix.txt', 'M3', '-ascii', '-double');
 - dlmwrite('matrix.txt', M3, 'delimiter', '\t', 'precision', 6);
+
+
+Some plot commands
+- plot(M3(:, 1), M3(:, 3));                  % Plot the curve
+- xlabel('Time \[h\]');                      % Label X-axis
+- ylabel('\[mV\]');                          % Label Y-axis
+- title('Solar Intensity Measurement');
+- grid on;                                   % Add grid
+- hold on;                                   % Add / hold multiple plots
+- plot(M3(:, 1), M3(:, 6));                  % Plot the curve
+- plot(M3(:, 1), M3(:, 6));                  % Plot the curve
+- hold off;
+- legend('Udiff', 'Urshunt', 'Udiode');
