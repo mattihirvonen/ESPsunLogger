@@ -46,4 +46,5 @@ Application use following libraries
 Read file *linux/README.md*
 
 ### ToDo...
+- Add some info to project how to use GnuPlot for data visualization
 - daily/hourly sun intensity history
