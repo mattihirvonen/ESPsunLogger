@@ -1,34 +1,43 @@
+%---------------------------------------------------------------
+% Example script of Octave data handling commands
+% This script plot measurement results from named matrix: "sundata"
+%
+% Octave can use '#' and '%' for comment
+% (but my editor show only '%' lines coloured as comment)
+%---------------------------------------------------------------
 
-# Example script of Octave data handling commands
+%  Add value to first column
+% (for example to change plot's x axis to show wall clock time)
+timeshift = 6;
+%
+sundata(:, 1) = sundata(:, 1) + timeshift;
 
-M1 = load('aurinko_2026-07-26_1.log');
-M2 = load('aurinko_2026-07-26_3.log');
+% Pick matrix columns to named vectors
+time       = sundata(:, 1);   % [h]
+sample     = sundata(:, 2);   % sample number (increment by 1 per second)
+Udiff      = sundata(:, 3);   % [mV] Udiff = U(Rshunt) = Upanel - Udiode
+intensity  = sundata(:, 4);   % [%]  solar intensity of 950 W/m2 (Finland summer time)
+cumulative = sundata(:, 5);   %
+Upanel     = sundata(:, 6);   % [mV]
+Udiode     = sundata(:, 7);   % [mV]
+Debug      = sundata(:, 8);   % filtered(Udiff) - analogReadMilliVolts()
 
-# calculate time shift in seconds to hours
-timeshift = 6017 / 3600;
 
-# Add value to first column
-M2(:, 1) = M2(:, 1) + timeshift;
+# plotyy( time, intensity, time, cumulative );
+# plotyy( time, Udiff,     time, intensity );
+  plotyy( time, Udiff,     time, cumulative );
 
-# disp(M2);
-
-# Vertical concatenation (append rows) - Append M2 below M1
-M3 = [M1; M2];
-
-save('matrix.txt', 'M3', '-ascii');
-
-# plot( M3(:, 1), M3(:, 3) );
-plotyy( M3(:, 1), M3(:, 3), M3(:, 1), M3(:, 5) );
+grid on
+title('Solar Intensity Measurement');
 xlabel('Time [h]');
 ylabel('[mV]');
 % ylabel(ax(1), '[mV]');               % not supported
 % ylabel(ax(2), 'Cumulative');         % not supported
-title('Solar Intensity Measurement');
-grid on
 
 hold on;
-plot( M3(:, 1), M3(:, 6) );
-plot( M3(:, 1), M3(:, 7) );
-% plotyy( M3(:, 1), M3(:, 6), M3(:, 1), M3(:, 7) );
-hold off;
+plot( time, Upanel );
+plot( time, Udiode );
+% plotyy( time, Upanel, time, Udiode );
+hold off
+
 legend('Ushunt', 'Cumulative', 'Udiode', 'Upanel');

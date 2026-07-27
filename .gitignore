@@ -1,7 +1,6 @@
 WiFiConf.h
 mqttLogger
-history.txt
-*.txt
-*.log
-*.pdf
-*.svg
+data/*.txt
+data/*.log
+data/*.pdf
+data/*.svg
