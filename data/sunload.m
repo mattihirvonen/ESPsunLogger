@@ -3,12 +3,16 @@
 % Call this function from octave CLI's command line like
 %
 %     octave:1>   sunload("filename.ext")
+%     octave:2>   sunload("filename.ext", 2)   % Add 2 hour time shift to X
+%
+% Function return value:
+% - Loaded matrix
 %
 % https://stackoverflow.com/questions/48022907/how-do-i-pass-a-command-line-argument-to-an-octave-function-when-calling-functio
 %
 %-----------------------------------------------------------------------------------
 
-function sunload( varargin )
+function result = sunload( varargin )
 
     % Some extra (obsolete) code stuff from previous tests...
 
@@ -54,7 +58,10 @@ function sunload( varargin )
     end
 
     sundata = load(filename, '-ascii', 'headerlines', '5');
-    sunplot( sundata, timeshift );
+    sundata(:, 1) = sundata(:, 1) + timeshift;
+    sunplot( sundata );
+
+    result = sundata;
 
 %   disp( sundata  );
 %   disp( filename );
