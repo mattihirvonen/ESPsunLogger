@@ -407,8 +407,9 @@ void parse_args( int argc, char *argv[] )
                  conf.time_scale = SCALE_DAY;
                  conf.Naverage   = 60;
              }
-        else if ( !strcmp(argv[ix], "-a") )  { conf.Naverage   = atoi( argv[++ix] );    }   // N sample average (one sample per sec)
-        else if ( !strcmp(argv[ix], "-t") )  { strcpy( conf.topic, argv[++ix] );        }
+        else if ( !strcmp(argv[ix], "-a") )  { conf.Naverage   = atoi(   argv[++ix] );  }   // N sample average (one sample per sec)
+        else if ( !strcmp(argv[ix], "-t") )  { strcpy( conf.topic,       argv[++ix] );  }
+        else if ( !strcmp(argv[ix], "-h") )  { strcpy( conf.mqtt_broker, argv[++ix] );  }
     }
 }
 
