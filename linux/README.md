@@ -49,6 +49,15 @@ Resume sceen
 Resume screen by ID
 - screen -r 1135
 
+### Using Octave to Plot Data
+Subdirectory **data** contain some Octave scripts to help ploting captured *mqttLogger* data.
+- *sunload.m*  &emsp; main function to read captured mqttLogger data (function call sunplot)
+- *sunplot.m*  &emsp; helper function to plot sun data matrix
+
+Example command(s) to use functin from Octave's command line
+- octave:1> &emsp; sunload("datafile.txt")    &emsp; &emsp; % Plot "datafile.txt"
+- octave:2> &emsp; sunload("datafile.txt", 8) &emsp; &emsp; % Add 8h time shift to X axis
+
 ### Octave Command Examples
 Load numerical matrix data (text file) into memory matrix "*__M1__*"
 - M1 = load('sundata1.log');

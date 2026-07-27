@@ -1,35 +1,63 @@
-% Example script of Octave data handling commands.
-% This script load two mqttLogger measurement results
-% log files and combine files to result data matrix "sundata"
-% for ploting using next scrip (sunplot.m)
+%-----------------------------------------------------------------------------------
 %
-% Octave can use '#' and '%' for comment
-% (but my editor show only '%' lines coloured as comment)
+% Call this function from octave CLI's command line like
+%
+%     octave:1>   sunload("filename.ext")
+%
+% https://stackoverflow.com/questions/48022907/how-do-i-pass-a-command-line-argument-to-an-octave-function-when-calling-functio
+%
+%-----------------------------------------------------------------------------------
 
-% Load measurement data files (skip first 5 lines garbage)
-M1 = load('aurinko_2026-07-26_1.log', '-ascii', 'skiprows',    '5');
-M2 = load('aurinko_2026-07-26_3.log', '-ascii', 'headerlines', '5');
+function sunload( varargin )
 
-% Calculate time shift in seconds to hours
-% Read sample number from second column of M2
-% Update sample number manually here:
-samplenumber = 6017
-timeshift    = samplenumber / 3600;
+    % Some extra (obsolete) code stuff from previous tests...
 
-%  Add "timeshift" value to first column
-% (for example to change plot's X axis to show wall clock time)
-M2(:, 1) = M2(:, 1) + timeshift;
+    % Read incoming arguments
+    % args = argv();
 
-# disp(M2);
+    % if numel(args) < 1
+    %     fprintf("Error: Missing filename.\n");
+    %     fprintf("Usage: sunload.m  filename  [timeshift]\n");
+    %     return;
+    % end
 
-% Vertical concatenation (append rows) - Append M2 below M1
-M3 = [M1; M2];
+    % filename  =  args{1};
+    % timeshift = 0;
 
-% Debug test command to verify result matrix using text editor
-# save('matrix.txt', 'M3', '-ascii');
+    % if numel(args) > 1
+    %     timeshift = args{2};
+    % end
 
-%Copy measurement data matrix to standard name "sundata" for next script
-sundata = M3;
+    % ---
 
-% Call next script to plot measured sun data from matrix "sundata"
-sunplot
+    % varargin is a cell array containing all extra arguments
+    numArgs   = nargin;  % Number of input arguments
+    timeshift = 0;
+
+    if numArgs < 1
+        fprintf('ERROR: sunload() function requires at leat one argument (data file name)\n');
+        return;
+    end;
+
+    if numArgs > 1
+        timeshift = varargin{2};
+    end;
+
+    filename = varargin{1};
+
+    % Check if file exists in current directory or search path
+    if exist(filename, "file") == 2
+        printf("Load file: '%s'\n", filename);
+    else
+        printf("File '%s' does not exist.\n", filename);
+        return;
+    end
+
+    sundata = load(filename, '-ascii', 'headerlines', '5');
+    sunplot( sundata, timeshift );
+
+%   disp( sundata  );
+%   disp( filename );
+%   disp( timeshift);
+
+endfunction
