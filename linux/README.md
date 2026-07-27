@@ -1,6 +1,6 @@
 
 # mqttLogger
-**mqttLogger** receive MQTT messages from (mosquitto) message broker and print
+**mqttLogger** receive MQTT messages from (mosquitto) MQTT message broker and print
 message contents to stdout with time stamp. Typically these message contents
 are formated as numerical data rows of matrix. Redirect this print out to file.
 Later file data can visualize and manipulate using GnuPlot or Octave
@@ -13,7 +13,7 @@ and mqttLogger applications. Typically this kind server is easier to setup in Li
 environment than in Windows (of course it is possible setup also in windows,
 but I have not tested).
 
-mqttLogger command line option(s)
+**mqttLogger** command line option(s)
 - __*-t topic*__ set message topic filter (default is all by wild card  __*#*__)
 
 Start mqttLogger with command line comman and redirect output into file
