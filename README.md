@@ -45,6 +45,16 @@ Application use following libraries
 ### Data Post Prosessing And Visualization
 Read file *linux/README.md*
 
+### Some Free public MQTT Servers
+- test.mosquitto.org
+- broker.hivemq.com
+
+### Example commands to Testing MQTT Server Message Passing
+- http://www.steves-internet-guide.com/mosquitto_pub-sub-clients/
+- mosquitto_sub -v -h test.mosquitto.org  -t "home/sundata/#"
+- mosquitto_pub    -h test.mosquitto.org  -t "home/sundata/value"  -m "12345"
+
+
 ### ToDo...
 - Add some info to project how to use GnuPlot for data visualization
 - daily/hourly sun intensity history

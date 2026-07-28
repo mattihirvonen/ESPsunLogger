@@ -15,6 +15,7 @@ but I have not tested).
 
 **mqttLogger** command line option(s)
 - __*-t topic*__ set message topic filter (default is all by wild card  __*#*__)
+- __*-h host*__  set MQTT broker host name or IP address (default is localhost)
 
 Start mqttLogger with command line comman and redirect output into file
 - mqttLogger > sundata.log &
