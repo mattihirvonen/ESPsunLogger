@@ -1,3 +1,5 @@
+.pio/*
+.vscode/*
 WiFiConf.h
 mqttLogger
 data/*.txt
