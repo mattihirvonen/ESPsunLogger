@@ -19,7 +19,7 @@ rem  start 20:15
 rem  %DATA2GP%  -f history.dat.alku >history.txt
 rem  %DATA2GP%  -f history.dat      >history.txt
 
-rem ================================================
+rem  ================================================
 
-copy          %1%                history.txt
-%GNUPLOT%  -p gnuplot_script.gp  history.txt
+copy          %1%                gnuplot_data.txt
+%GNUPLOT%  -p gnuplot_script.gp  gnuplot_data.txt
