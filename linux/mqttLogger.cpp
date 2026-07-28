@@ -24,6 +24,7 @@
 #define MQTT_BROKER    "localhost"         // Default MQTT message broker "127.0.0.1"
 #define MQTT_PORT      1883
 #define TOPIC          "#"
+#define TEST_TOPIC     0                   // Non zero subscribe: "Hello from ESP32!"
 #define UDP_PORT       8080                // Default UDP packet listening port
 
 typedef struct
@@ -321,7 +322,10 @@ int handleMQTTmessage( char *buffer, int bytes_received )
 
     messages += 1;
 
-    if ( ++count >= conf.Naverage )
+    if ( strstr(buffer, "Hello from ESP32!") ) {
+         // Skip: topic="test/topic"
+    }
+    else if ( ++count >= conf.Naverage )
     {
         time_t seconds = time(NULL) - conf.start_time;
 
@@ -340,7 +344,10 @@ void on_connect(UNUSED struct mosquitto *mosq, UNUSED void *obj, int rc)
 {
     if (rc == 0) {
         printf("# Connected to broker.\n");
+        #if TEST_TOPIC
+        //  Return message: "Hello from ESP32!"
         mosquitto_subscribe(mosq, NULL, "test/topic", 0);
+        #endif
     } else {
         fprintf(stderr, "# Connection failed: %d\n", rc);
     }

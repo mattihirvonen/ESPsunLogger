@@ -39,7 +39,7 @@ function result = sunload( varargin )
     timeshift = 0;
 
     if numArgs < 1
-        fprintf('ERROR: sunload() function requires at leat one argument (data file name)\n');
+        fprintf('ERROR: sunload() function requires at least one argument (data file name)\n');
         return;
     end;
 
@@ -57,7 +57,8 @@ function result = sunload( varargin )
         return;
     end
 
-    sundata = load(filename, '-ascii', 'headerlines', '5');
+%   sundata = load(filename, '-ascii', 'headerlines', '3');
+    sundata = load(filename);
     sundata(:, 1) = sundata(:, 1) + timeshift;
     sunplot( sundata );
 
