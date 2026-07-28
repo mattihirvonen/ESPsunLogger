@@ -14,7 +14,7 @@ void setup_wifi( const char *ssid, const char *password )
     delay(500);
     Serial.print(".");
   }
-  Serial.println("\nConnected to Wi-Fi!");
+  Serial.println("\nConnected  to Wi-Fi!");
   Serial.print("ESP32 IP Address: ");
   Serial.println(WiFi.localIP());
 }

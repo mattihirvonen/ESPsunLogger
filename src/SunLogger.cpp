@@ -26,10 +26,21 @@
 
 #define UNUSED  __attribute__((unused))
 
+//
+// Calibration info:
+// - Panel 1:  ESP32 Devkit1, ADC_DIFF=2200, Rshunt=82  (2026-07-28)
+//
+
 #define ADC_CHANNELS   2      // 2: shunt and diode // 1: only shunt (fix voltage diode)
 #define ADC_PANEL     34      // GPIO pin: Analog ADC1_CH6 - ESP32 DEVKIT V1
 #define ADC_DIODE     35      // GPIO pin: Analog ADC1_CH7 - ESP32 DEVKIT V1
 #define SPmax        950      // Sun's peak power [W/m2] at latitude 60 deg. north (summer time)
+#define ADC_REF     2200      // Calibration value: "adcValue.diff" at "SPmax"
+
+   #define MQTT_TOPIC   "solar/tikku"         // Select topic to not conflict with public brokers!
+   #define MQTT_BROKER  "192.168.1.184"
+// #define MQTT_BROKER  "broker.hivemq.com"   // Test topic conflict with wild card using
+// #define MQTT_BROKER  "test.mosquitto.org"  // mosquitto_sub or mqttLogger when use public broker
 
 //-----------------------------------------------------------------------------------------
 
@@ -44,20 +55,20 @@ const char* password = "YOUR_ROUTER_WiFi_PASSWORD";
 //-----------------------------------------------------------------------------------------
 
 // Replace with your MQTT broker details
-const char*  mqtt_server = "192.168.1.184";  // "broker.hivemq.com";
+const char*  mqtt_server = MQTT_BROKER;
 
 WiFiClient   espClient;
 PubSubClient mqttClient( espClient );
 
-void mqtt_callback(char* topic, byte* message, unsigned int length)
+void mqtt_callback(char* topic, byte* message, unsigned int UNUSED length)
 {
+  // NOTE:
+  // Expect here "message" is printable ASCII text (not binary data) !!!
+
   Serial.print("Message received - topic: ");
   Serial.println(topic);
-  String msg;
-  for (int i = 0; i < length; i++) {
-    msg += (char)message[i];
-  }
-  Serial.println("Message received - data:  " + msg);
+  Serial.print("Message received - data:  ");
+  Serial.println((char*)message);
 }
 
 //-----------------------------------------------------------------------------------------
@@ -71,9 +82,9 @@ typedef struct
 
 
 float       Iref   = 0.0270;   // Solar panel's measured "short circuit" current [A] at SPmax
-float       Rshunt = 80.0;     // Current shunt resistance [ohm]: Select value <= (2.5V / Iref)
+float       Rshunt = 82.0;     // Current shunt resistance [ohm]: Select value <= (2.5V / Iref)
 //
-int         ADCref = 2300;     // Measured ADC value at SPmax (2000)
+int         ADCref = ADC_REF;  // Calibration value: Measured "adcValue.diff" [mV] at SPmax (2100)
 int         Ntaps  = 20;       // Filter coefficient
 //
 adcValue_t  adcValue;          // Work space variable (filtered ADC data)
@@ -133,8 +144,8 @@ void taskMeasure( void UNUSED *pvParameters )
         // Wait for the next cycle.
         BaseType_t UNUSED  xWasDelayed = xTaskDelayUntil( &xLastWakeTime, TASK_PERIOD );
 
-        // ADC result offset and gain fixes required with raw data
-    //  adcRaw   = analogRead( ADC_PANEL );                // Uncalibrated value
+        // ADC result offset and gain fixes required with raw uncalibrated ADC data
+    //  adcRaw   = analogRead( ADC_PANEL );
         mV_panel = analogReadMilliVolts( ADC_PANEL );      // Factory calibrated !!!
         #if  ADC_CHANNELS > 1
         mV_diode = analogReadMilliVolts( ADC_DIODE );      // Factory calibrated !!!
@@ -144,14 +155,7 @@ void taskMeasure( void UNUSED *pvParameters )
         // Filter measurement results
         adcValue.panel = floatingAverage( &sum_panel, mV_panel, Ntaps );
         adcValue.diode = floatingAverage( &sum_diode, mV_diode, Ntaps );
-
-        if ( adcValue.diode < 250 ) {  // Schottky diode BAT85
-             adcValue.diode = 250;
-        }
-        if ( adcValue.panel < adcValue.diode ) {
-             adcValue.panel = adcValue.diode;
-        }
-        adcValue.diff = floatingAverage( &sum_diff,  adcValue.panel - adcValue.diode, Ntaps );
+        adcValue.diff  = floatingAverage( &sum_diff,  adcValue.panel - adcValue.diode, Ntaps );
     }
 }
 
@@ -159,6 +163,8 @@ void taskMeasure( void UNUSED *pvParameters )
 void setup( void )
 {
     Serial.begin( 115200 );
+    delay( 1500 );
+    Serial.println("\n\nStart...");
 
     // Connect to Wi-Fi router
     setup_wifi( ssid, password );
@@ -167,14 +173,18 @@ void setup( void )
     mqttClient.setServer( mqtt_server, 1883 );
     mqttClient.setCallback( mqtt_callback );
 
+    #if 1
+    // There is broblem with public servers like broker.hivemq.com
+    // Testing MQTT with/without strict timing task's CPU load
     xTaskCreate(
       taskMeasure,    // function name
       "Measure",      // task name (for debugging)
-      1024,            // stack size in words (not bytes)
+      1024,           // stack size in words (not bytes)
       NULL,           // parameters to pass
       2,              // priority (1 = lowest)
       NULL            // task handle (optional)
-  );
+    );
+    #endif
 
   pinMode(ADC_DIODE, INPUT);
   pinMode(ADC_PANEL, INPUT);
@@ -191,45 +201,51 @@ void loop( void )
            int32_t  now      = millis();
            char     line[256];
 
+    if (!mqttClient.connected()) {
+        mqtt_reconnect( mqttClient );
+//      mqttClient.subscribe( MQTT_TOPIC );
+    }
+    mqttClient.loop();
+
+    #if 0
+    return;    // Test MQTT with minimal CPU load in "loop" function
+    #else
+
     if ( (int32_t)(now - previous) < PERIOD ) {
         return;
     }
     previous += PERIOD;
-    counter  += 1;        // "seconds"
+    counter  += 1;            // "seconds"
 
-    int adcData        =  adcValue.diff;                // Filtered ADC [mV] value of shunt resistor
-    int solarIntensity = (100 * adcData) / ADCref;      // Solar's intensity [%]
+    int adcData         = 0;  // Filtered ADC [mV] value of shunt resistor
+    int solarIntensity  = 0;  // Solar's intensity [%]
 
-    sum += solarIntensity;    // Note: Overflows after few years
+    if ( (adcValue.diff > 0) && (adcValue.panel > 200) ) {
+        adcData         = adcValue.diff;
+        solarIntensity  = (100 * adcData) / ADCref;
+    }
+    sum += solarIntensity;    // Overflow after few years
+
+    #if 0  // Debug feature
     snprintf( line, sizeof(line), "%5d: adc %4d - solar intensity %3d - cumulative %2ld\r\n", counter, adcData, solarIntensity, sum / counter );
-    Serial.printf("%s", line);
+    Serial.printf("%s", line
+    #endif
 
-    if (!mqttClient.connected()) {
-        mqtt_reconnect( mqttClient );
-        mqttClient.subscribe("solar/#");
-    }
-    else {
-        mqttClient.loop();
+    // Publish MQTT message every 1 seconds (PERIOD)
+    String topic      = MQTT_TOPIC;
+    float  cumulative = cumulative_sum( sum );
 
-        // Publish a message every 1 seconds
-        static unsigned long lastMsg = millis();
-        if (millis() - lastMsg >= 1000) {
-            lastMsg = millis();
+    int mV = analogReadMilliVolts( ADC_PANEL );  // Debug testing
 
-            String topic      = "solar/data";
-            float  cumulative = cumulative_sum( sum );
+    // Produce Octave and GnuPlot compatible data row:
+//  snprintf( line, sizeof(line), "%6d  %4d  %3d  %.3f\r\n", counter, adcData, solarIntensity, cumulative );
+    snprintf( line, sizeof(line), "%6d  %4d  %3d  %.3f  %4d  %4d  %4d\r\n",
+              counter, adcData, solarIntensity, cumulative, adcValue.panel, adcValue.diode, adcValue.panel - mV );
 
-            int mV = analogReadMilliVolts( ADC_PANEL );  // Debug testing
+    mqttClient.publish( topic.c_str(), line, strlen(line) + 2 );
 
-            // GnuPlot compatible data row:
-//          snprintf( line, sizeof(line), "%6d  %4d  %3d  %.3f\n", counter, adcData, solarIntensity, cumulative );
-            snprintf( line, sizeof(line), "%6d  %4d  %3d  %.3f  %4d  %4d  %4d\n",
-                      counter, adcData, solarIntensity, cumulative, adcValue.panel, adcValue.diode, adcValue.panel - mV );
+    Serial.print("Message published: ");
+    Serial.print(line);
 
-            mqttClient.publish( topic.c_str(), line, strlen(line)+1 );
-
-            Serial.print  ("Message published: ");
-            Serial.println(line);
-        }
-    }
+    #endif  // Test MQTT with minimal CPU load in "loop" function
 }
