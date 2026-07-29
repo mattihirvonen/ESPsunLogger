@@ -30,12 +30,18 @@
 // Calibration info:
 // - Panel 1:  ESP32 Devkit1, ADC_DIFF=2200, Rshunt=82  (2026-07-28)
 //
+// 2022-07-29 sun from clear sky 942 W/m2 (99%), Rshunt 82 ohm (2.4 h kohdalla lokissa)
+// - time=12:45, Udiff=1785, Upanel=2170 mV, ADC_REF=2200, intensity=81
+// - fix ADC_REF: 2200 * 81 / 99 = 1800
+//
+// - time=13:20, Udiff=1795, Upanel=2175 mV, ADC_REF=2200, intensity=81
+// - fix ADC_REF: 2200 * 81 / 99 = 1800
 
 #define ADC_CHANNELS   2      // 2: shunt and diode // 1: only shunt (fix voltage diode)
 #define ADC_PANEL     34      // GPIO pin: Analog ADC1_CH6 - ESP32 DEVKIT V1
 #define ADC_DIODE     35      // GPIO pin: Analog ADC1_CH7 - ESP32 DEVKIT V1
 #define SPmax        950      // Sun's peak power [W/m2] at latitude 60 deg. north (summer time)
-#define ADC_REF     2200      // Calibration value: "adcValue.diff" at "SPmax"
+#define ADC_REF     1800      // Calibration value: "adcValue.diff" at "SPmax"
 
    #define MQTT_TOPIC   "solar/tikku"         // Select topic to not conflict with public brokers!
    #define MQTT_BROKER  "192.168.1.184"
