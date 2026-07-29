@@ -1,8 +1,10 @@
 
-## File: solar_intensity.m
+## ==================================================
+
+## File: solar_panel_intensity.m
 ## Usage:
 ##   [I_total, I_direct, I_diffuse, I_reflected] = ...
-##       solar_panel_intensity(lat_deg, lon_deg, tz_offset, day_of_year, time_hours [, tilt_deg, azimuth_deg, albedo])
+##       solar_intensity(lat_deg, lon_deg, tz_offset, day_of_year, time_hours [, tilt_deg, azimuth_deg, albedo])
 ##
 ## lat_deg     : Latitude in degrees (-90 to 90)
 ## lon_deg     : Longitude in degrees (-180 to 180, East positive)
@@ -18,9 +20,29 @@
 ##   I_direct   : Direct beam component [W/m²]
 ##   I_diffuse  : Diffuse sky component [W/m²]
 ##   I_reflected: Ground-reflected component [W/m²]
+##
+##  Example: Sydney, Australia, December 21, 30° tilt, facing north
+##  lat = -33.8688;
+##  lon = 151.2093;
+##  tz  = +11;          % AEDT
+##  day = 355;          % Dec 21
+##  time = 0:0.25:24;   % every 15 minutes
+##  tilt = 30;          % degrees
+##  az   = 0;           % facing north
+##  albedo = 0.25;      % slightly reflective ground
+##
+##  [I_total, I_direct, I_diffuse, I_reflected] = ...
+##      solar_intensity(lat, lon, tz, day, time, tilt, az, albedo
+
+## ==================================================
 
 function [I_total, I_direct, I_diffuse, I_reflected] = ...
     solar_panel_intensity(lat_deg, lon_deg, tz_offset, day_of_year, time_hours, varargin)
+
+  % Irritation calibration fixes by MH (Finland summer time:
+  % - Suncalc.org web site 944 W/m2, unmodified code 1085 W/m2
+  % - Original code fails with panel azimith facing to nort vs south
+  irridance_calibration_fix = 944 / 1085;
 
   % --- Input validation ---
   if nargin < 5
@@ -79,7 +101,8 @@ function [I_total, I_direct, I_diffuse, I_reflected] = ...
 
   % --- Direct Normal Irradiance (DNI) ---
   DNI = zeros(size(elev_rad));
-  DNI(idx) = G_sc * dist_factor .* exp(-0.14 .* m(idx));
+% DNI(idx) =  G_sc * dist_factor .* exp(-0.14 .* m(idx));
+  DNI(idx) = (G_sc * dist_factor .* exp(-0.14 .* m(idx))) * irridance_calibration_fix; % Fix by MH
 
   % --- Diffuse Horizontal Irradiance (empirical fraction) ---
   DHI = zeros(size(elev_rad));
