@@ -14,8 +14,10 @@ environment than in Windows (of course it is possible setup also in windows,
 but I have not tested).
 
 **mqttLogger** command line option(s)
-- __*-t topic*__ set message topic filter (default is all by wild card  __*#*__)
-- __*-h host*__  set MQTT broker host name or IP address (default is localhost)
+- __*-t topic*__   set message topic filter (default is all by wild card  __*#*__)
+- __*-h host*__    set MQTT broker host name or IP address (default is localhost)
+- __*-W offset*__  set time column as wall clock time  UTC + "offset" hours
+
 
 Start mqttLogger with command line comman and redirect output into file
 - mqttLogger > sundata.log &
@@ -52,12 +54,21 @@ Resume screen by ID
 
 ### Using Octave to Plot Data
 Subdirectory **data** contain some Octave scripts to help ploting captured *mqttLogger* data.
-- *sunload.m*  &emsp; main function to read captured mqttLogger data (function call sunplot)
+- *sunload.m*  &emsp; main function to read captured mqttLogger data (function calls sunplot)
 - *sunplot.m*  &emsp; helper function to plot sun data matrix
 
 Example command(s) to use functin from Octave's command line
 - octave:1> &emsp; sunload("datafile.txt")    &emsp; &emsp; % Plot "datafile.txt"
 - octave:2> &emsp; sunload("datafile.txt", 8) &emsp; &emsp; % Add 8h time shift to X axis
+
+### Octave Function and GnuPlot Scripts
+**data** directory contains some handy function script for Octave an GnuPlot.
+- _solar_intensity.m_         &emsp;  Octave function to calculate solar irridance versus time
+- _solar_panel_intensity.m_   &emsp;  Octave function to calculate solar panel irridance versus time with panels orientation (under construction)
+- _sunload.m_                 &emsp;  Octave script to load and plot sunLogger/mqttlogger captured data
+- _sunplot.m_                 &emsp;  Octave function to plot sunLogger/mqttlogger captured data matrix
+- _gnuplot.bat_               &emsp;  Windows command line script to GnuPlot sunLogger/mqttlogger captured data
+- _gnuplot_script.gp_         &emsp;  GnuPlot command scrip (used by "gnuplot.bat")
 
 ### Octave Command Examples
 Load numerical matrix data (text file) into memory matrix "*__M1__*"
