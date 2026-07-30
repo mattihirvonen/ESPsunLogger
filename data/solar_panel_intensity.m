@@ -1,4 +1,3 @@
-
 ## ==================================================
 
 ## File: solar_panel_intensity.m
@@ -39,10 +38,13 @@
 function [I_total, I_direct, I_diffuse, I_reflected] = ...
     solar_panel_intensity(lat_deg, lon_deg, tz_offset, day_of_year, time_hours, varargin)
 
-  % Irritation calibration fixes by MH (Finland summer time:
+  % Irritation calibration fixes by MH (Finland summer time):
   % - Suncalc.org web site 944 W/m2, unmodified code 1085 W/m2
   % - Original code fails with panel azimith facing to nort vs south
   irridance_calibration_fix = 944 / 1085;
+%  if lat_deg > 0
+%     lat_deg = 0 - lat_deg;
+%  endif
 
   % --- Input validation ---
   if nargin < 5
@@ -64,6 +66,23 @@ function [I_total, I_direct, I_diffuse, I_reflected] = ...
   if length(varargin) >= 1, tilt_deg = varargin{1}; endif
   if length(varargin) >= 2, azimuth_deg = varargin{2}; endif
   if length(varargin) >= 3, albedo = varargin{3}; endif
+
+
+  #{
+  % Irritation calibration fixes by MH (Finland summer time):
+  % - Suncalc.org web site 944 W/m2, unmodified code 1085 W/m2
+  % - Original code fails with panel azimith facing to nort vs south
+  if     azimuth_deg >= 270
+         azimuth_deg  = azimuth_deg;
+  elseif azimuth_deg >  180
+	     azimuth_deg  = 360 - azimuth_deg;  % OK
+  elseif azimuth_deg >=  90
+         azimuth_deg  =  90 + azimuth_deg;  % OK
+  elseif azimuth_deg >=  00
+         azimuth_deg  = azimuth_deg;
+  endif#
+  %}
+
 
   % --- Constants ---
   G_sc = 1367; % Solar constant [W/m²]
@@ -126,3 +145,4 @@ function [I_total, I_direct, I_diffuse, I_reflected] = ...
   % --- Total irradiance ---
   I_total = I_direct + I_diffuse + I_reflected;
 endfunction
+
