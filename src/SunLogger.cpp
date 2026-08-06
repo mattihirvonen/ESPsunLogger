@@ -21,7 +21,10 @@
 #include <string.h>
 #include <WiFi.h>
 #include <freertos/FreeRTOS.h>
-#include <PubSubClient.h>         // MQTT
+
+// #include <PubSubClient.h>         // MQTT
+   #include <MQTT.h>                 // MQTT
+
 #include "esp32lib.hpp"
 
 #define UNUSED  __attribute__((unused))
@@ -43,10 +46,15 @@
 #define SPmax        950      // Sun's peak power [W/m2] at latitude 60 deg. north (summer time)
 #define ADC_REF     1800      // Calibration value: "adcValue.diff" at "SPmax"
 
-   #define MQTT_TOPIC   "solar/tikku"         // Select topic to not conflict with public brokers!
-   #define MQTT_BROKER  "192.168.1.184"
-// #define MQTT_BROKER  "broker.hivemq.com"   // Test topic conflict with wild card using
-// #define MQTT_BROKER  "test.mosquitto.org"  // mosquitto_sub or mqttLogger when use public broker
+#define MQTT_CLIENT_ID   "aurinkopaneeli"
+#define MQTT_USERNAME    "public"
+#define MQTT_PASSWORD    "public"
+#define MQTT_TOPIC       "solar/tikku"         // Select topic to not conflict with public brokers!
+
+// #define MQTT_BROKER  "192.168.1.184"
+// #define MQTT_BROKER  "broker.hivemq.com"         // Test topic conflict with wild card using
+   #define MQTT_BROKER  "test.mosquitto.org"        // OK, require empty USERNAME and PASSWORD
+// #define MQTT_BROKER  "public.cloud.shiftr.io"    // OK, require non empty USERNAME and PASSWORD
 
 //-----------------------------------------------------------------------------------------
 
@@ -64,8 +72,9 @@ const char* password = "YOUR_ROUTER_WiFi_PASSWORD";
 const char*  mqtt_server = MQTT_BROKER;
 
 WiFiClient   espClient;
-PubSubClient mqttClient( espClient );
+MQTTClient   mqttClient;
 
+/*
 void mqtt_callback(char* topic, byte* message, unsigned int UNUSED length)
 {
   // NOTE:
@@ -75,6 +84,38 @@ void mqtt_callback(char* topic, byte* message, unsigned int UNUSED length)
   Serial.println(topic);
   Serial.print("Message received - data:  ");
   Serial.println((char*)message);
+}
+*/
+
+void messageReceived(String &topic, String &payload) {
+  Serial.println("incoming: " + topic + " - " + payload);
+
+  // Note: Do not use the client in the callback to publish, subscribe or
+  // unsubscribe as it may cause deadlocks when other things arrive while
+  // sending and receiving acknowledgments. Instead, change a global variable,
+  // or push to a queue and handle it in the loop after calling `client.loop()`.
+}
+
+
+void connect() {
+  Serial.print("checking wifi...");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(1000);
+  }
+
+  Serial.print("\nconnecting...");
+//while (!mqttClient.connect(MQTT_CLIENT_ID)) {
+//while (!mqttClient.connect(MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD)) {   // "public.cloud.shiftr.io"
+  while (!mqttClient.connect(MQTT_CLIENT_ID, "", "")) {                         // "test.mosquitto.org"
+    Serial.print(".");
+    delay(1000);
+  }
+
+  Serial.println("\nconnected!");
+
+  mqttClient.subscribe(MQTT_TOPIC);
+//client.unsubscribe(TOPIC);
 }
 
 //-----------------------------------------------------------------------------------------
@@ -176,8 +217,17 @@ void setup( void )
     setup_wifi( ssid, password );
 
     // Connect to MQTT broker
+	/*
     mqttClient.setServer( mqtt_server, 1883 );
     mqttClient.setCallback( mqtt_callback );
+	*/
+	// Note: Local domain names (e.g. "Computer.local" on OSX) are not supported
+    // by Arduino. You need to set the IP address directly.
+ // mqttClient.begin("public.cloud.shiftr.io", espClient);
+    mqttClient.begin(MQTT_BROKER, espClient);
+    mqttClient.onMessage(messageReceived);
+
+    connect();
 
     #if 1
     // There is broblem with public servers like broker.hivemq.com
@@ -192,8 +242,8 @@ void setup( void )
     );
     #endif
 
-  pinMode(ADC_DIODE, INPUT);
-  pinMode(ADC_PANEL, INPUT);
+    pinMode(ADC_DIODE, INPUT);
+    pinMode(ADC_PANEL, INPUT);
 }
 
 
@@ -207,11 +257,20 @@ void loop( void )
            int32_t  now      = millis();
            char     line[256];
 
+/*
     if (!mqttClient.connected()) {
         mqtt_reconnect( mqttClient );
 //      mqttClient.subscribe( MQTT_TOPIC );
     }
     mqttClient.loop();
+*/
+
+    mqttClient.loop();
+ // delay(10);  // <- fixes some issues with WiFi stability
+
+    if (!mqttClient.connected()) {
+        connect();
+    }
 
     #if 0
     return;    // Test MQTT with minimal CPU load in "loop" function
@@ -248,7 +307,8 @@ void loop( void )
     snprintf( line, sizeof(line), "%3d  %.3f  %6d  %4d  %4d  %4d  %4d\r\n",
               solarIntensity, cumulative, counter, adcData_diff, adcValue.panel, adcValue.diode, adcValue.panel - mV );
 
-    mqttClient.publish( topic.c_str(), line, strlen(line) + 2 );
+//  mqttClient.publish( topic.c_str(), line, strlen(line) + 2 );
+    mqttClient.publish( topic.c_str(), line );
 
     Serial.print("Message published: ");
     Serial.print(line);
