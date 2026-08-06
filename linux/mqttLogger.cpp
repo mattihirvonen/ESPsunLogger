@@ -29,7 +29,7 @@
 typedef struct
 {
     time_t  start_time;
-    int     wallclock_time;
+    int     tz_offset;
     char    mqtt_broker[64];
     int     Naverage;
     float   time_scale;
@@ -39,7 +39,7 @@ typedef struct
 
 conf_t conf = {
       .start_time     = 0,
-      .wallclock_time = 0,
+      .tz_offset      = 3,                 // Default: Finland summer time
       .mqtt_broker    = MQTT_BROKER,
       .Naverage       = 1,
       .time_scale     = SCALE_HOUR,
@@ -327,7 +327,7 @@ int handleMQTTmessage( char *buffer, int bytes_received )
     {
         time_t seconds = time(NULL) - conf.start_time;
 
-        if ( conf.wallclock_time ) {
+        if ( conf.tz_offset ) {
             seconds %= 24*3600;
         }
         printTime( seconds, conf.time_scale );
@@ -411,10 +411,10 @@ void parse_args( int argc, char *argv[] )
                  conf.time_scale = SCALE_DAY;
                  conf.Naverage   = 60;
              }
-        else if ( !strcmp(argv[ix], "-a") )  { conf.Naverage   = atoi(     argv[++ix] );  }   // N sample average (one sample per sec)
+        else if ( !strcmp(argv[ix], "-a") )  { conf.Naverage  = atoi(      argv[++ix] );  }   // N sample average (one sample per sec)
         else if ( !strcmp(argv[ix], "-t") )  { strcpy( conf.topic,         argv[++ix] );  }
         else if ( !strcmp(argv[ix], "-h") )  { strcpy( conf.mqtt_broker,   argv[++ix] );  }
-        else if ( !strcmp(argv[ix], "-W") )  { conf.wallclock_time = atoi( argv[++ix] );  }   // UTC offset in hours
+        else if ( !strcmp(argv[ix], "-z") )  { conf.tz_offset = atoi(      argv[++ix] );  }   // Time zone offset to UTC in hours
     }
 }
 
@@ -445,9 +445,9 @@ int main(int argc, char *argv[])
     printf("# UTC  %s\n", buffer);
 
     parse_args(argc, argv);
-    if ( conf.wallclock_time ) {
+    if ( conf.tz_offset ) {
         conf.start_time -= (conf.start_time - 1785369600) % (24*3600);
-        conf.start_time -=  conf.wallclock_time * 3600;
+        conf.start_time -=  conf.tz_offset  * 3600;
     }
  // if ( conf.mode_mqtt )
     {
