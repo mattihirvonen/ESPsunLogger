@@ -3,6 +3,8 @@
 .vscode/*
 WiFiConf.h
 mqttLogger
+swapcols
+data/*.dat
 data/*.txt
 data/*.log
 data/*.pdf

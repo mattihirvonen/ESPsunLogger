@@ -223,17 +223,17 @@ void loop( void )
     previous += PERIOD;
     counter  += 1;            // "seconds"
 
-    int adcData         = 0;  // Filtered ADC [mV] value of shunt resistor
+    int adcData_diff    = 0;  // Filtered ADC [mV] value of shunt resistor
     int solarIntensity  = 0;  // Solar's intensity [%]
 
     if ( (adcValue.diff > 0) && (adcValue.panel > 200) ) {
-        adcData         = adcValue.diff;
-        solarIntensity  = (100 * adcData) / ADCref;
+        adcData_diff    = adcValue.diff;
+        solarIntensity  = (100 * adcData_diff) / ADCref;
     }
     sum += solarIntensity;    // Overflow after few years
 
     #if 0  // Debug feature
-    snprintf( line, sizeof(line), "%5d: adc %4d - solar intensity %3d - cumulative %2ld\r\n", counter, adcData, solarIntensity, sum / counter );
+    snprintf( line, sizeof(line), "%5d: adc %4d - solar intensity %3d - cumulative %2ld\r\n", counter, adcData_diff, solarIntensity, sum / counter );
     Serial.printf("%s", line
     #endif
 
@@ -244,9 +244,9 @@ void loop( void )
     int mV = analogReadMilliVolts( ADC_PANEL );  // Debug testing
 
     // Produce Octave and GnuPlot compatible data row:
-//  snprintf( line, sizeof(line), "%6d  %4d  %3d  %.3f\r\n", counter, adcData, solarIntensity, cumulative );
-    snprintf( line, sizeof(line), "%6d  %4d  %3d  %.3f  %4d  %4d  %4d\r\n",
-              counter, adcData, solarIntensity, cumulative, adcValue.panel, adcValue.diode, adcValue.panel - mV );
+//  snprintf( line, sizeof(line), "%6d  %4d  %3d  %.3f\r\n", counter, adcData_diff, solarIntensity, cumulative );
+    snprintf( line, sizeof(line), "%3d  %.3f  %6d  %4d  %4d  %4d  %4d\r\n",
+              solarIntensity, cumulative, counter, adcData_diff, adcValue.panel, adcValue.diode, adcValue.panel - mV );
 
     mqttClient.publish( topic.c_str(), line, strlen(line) + 2 );
 
