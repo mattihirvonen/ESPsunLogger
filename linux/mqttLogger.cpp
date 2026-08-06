@@ -369,7 +369,8 @@ void* thread_mqtt( void* arg )
 {
     struct mosquitto *mosq;
 
-    printf("# MQTT client connect to %s\n", reinterpret_cast<char*>( arg ) );
+//  printf("# Connect      %s\n", reinterpret_cast<char*>( arg ) );
+    printf("# Broker       %s\n", reinterpret_cast<char*>( arg ) );
 
     mosquitto_lib_init();
     mosq = mosquitto_new(NULL, true, NULL);
@@ -402,6 +403,20 @@ void* thread_mqtt( void* arg )
 
 // -----------------------------------------------------------------------------
 
+void help( void )
+{
+    printf("\n");
+    printf(" Usage:  mqttLogger  [-h host]  [-t \"topic\"]  [-z tz_offset] \n");
+    printf("\n");
+    printf(" Where:\n");
+    printf("\n");
+    printf("  -h host        Message broker host name or IP address (default is localhost)\n");
+    printf("  -t \"topic\"     Message topic (default is \"#\")\n");
+    printf("  -z tz_offset   Time zone offset to UTC (default is +3h, Finland summer time)\n");
+    printf("\n");
+}
+
+
 void parse_args( int argc, char *argv[] )
 {
     for ( int ix = 0; ix < argc; ix++ )
@@ -411,6 +426,7 @@ void parse_args( int argc, char *argv[] )
                  conf.time_scale = SCALE_DAY;
                  conf.Naverage   = 60;
              }
+        else if ( !strcmp(argv[ix], "-?") )  { help(); exit( 0 );                         }
         else if ( !strcmp(argv[ix], "-a") )  { conf.Naverage  = atoi(      argv[++ix] );  }   // N sample average (one sample per sec)
         else if ( !strcmp(argv[ix], "-t") )  { strcpy( conf.topic,         argv[++ix] );  }
         else if ( !strcmp(argv[ix], "-h") )  { strcpy( conf.mqtt_broker,   argv[++ix] );  }
@@ -433,18 +449,24 @@ int main(int argc, char *argv[])
         }
     }
     */
-    conf.start_time = time(NULL);   // UTC, command line: date -ud @1785369600, Thu Jul 30 00:00:00 UTC 2026
-    printf("# time %ld\n", conf.start_time );
 
     struct tm *timeinfo;
     char       buffer[80];
 
+    parse_args(argc, argv);
+
+    // UTC, command line: date -ud @1785369600, Thu Jul 30 00:00:00 UTC 2026
+    conf.start_time = time(NULL);
+    printf("# UTC time     %ld\n", conf.start_time );
+
+    conf.start_time += conf.tz_offset * 3600;
 //  timeinfo = localtime( &conf.start_time ) ;     // Convert to local time
     timeinfo = gmtime(    &conf.start_time ) ;     // Convert to UTC   time
     strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
-    printf("# UTC  %s\n", buffer);
+    printf("# UTC+%dh       %s\n", conf.tz_offset, buffer);
+//  printf("# Broker       %s\n", conf.mqtt_broker);
+    printf("# Topic        \"%s\"\n", conf.topic);
 
-    parse_args(argc, argv);
     if ( conf.tz_offset ) {
         conf.start_time -= (conf.start_time - 1785369600) % (24*3600);
         conf.start_time -=  conf.tz_offset  * 3600;
