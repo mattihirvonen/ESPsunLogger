@@ -76,12 +76,13 @@ void mqtt_callback(char* topic, byte* message, unsigned int length)
 }
 #endif
 
+/*
 void setup_mqtt( PubSubClient  &mqttClient, const char *mqtt_server, int port )
 {
   mqttClient.setServer( mqtt_server, port );
 //mqttClient.setCallback( mqtt_callback );
 }
-
+*/
 // ---------------------------------------------------------------------------------------
 // Example: Create an instance of MQTTClient 
 // MQTTClient client;
@@ -104,6 +105,7 @@ client.publish("/hello", "world");
 
 */
 
+/*
 void mqtt_reconnect( PubSubClient &mqttClient )
 {
   while ( !mqttClient.connected() )
@@ -120,3 +122,4 @@ void mqtt_reconnect( PubSubClient &mqttClient )
     }
   }
 }
+*/

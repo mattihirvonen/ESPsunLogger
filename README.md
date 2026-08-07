@@ -40,7 +40,8 @@ Application can build using
 
 ### External Libraries
 Application use following libraries
-- *PubSubClient* MQTT library by Nick O'Leary
+- *MQTT* MQTT library by Joel Gaehwiler
+- *PubSubClient* MQTT library by Nick O'Leary (obsolete)
 
 ### Data Post Prosessing And Visualization
 Read file *linux/README.md*
