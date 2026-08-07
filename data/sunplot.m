@@ -26,10 +26,10 @@ function sunplot( varargin )
 
     % Pick matrix columns to named vectors
     time       = sundata(:, 1);   % [h]
-    sample     = sundata(:, 2);   % sample number (increment by 1 per second)
-    Udiff      = sundata(:, 3);   % [mV] Udiff = U(Rshunt) = Upanel - Udiode
-    intensity  = sundata(:, 4);   % [%]  solar intensity of 950 W/m2 (Finland summer time)
-    cumulative = sundata(:, 5);   %
+    intensity  = sundata(:, 2);   % [%]  solar intensity of 950 W/m2 (Finland summer time)
+    cumulative = sundata(:, 3);   %
+    sample     = sundata(:, 4);   % sample number (increment by 1 per second)
+    Udiff      = sundata(:, 5);   % [mV] Udiff = U(Rshunt) = Upanel - Udiode
     Upanel     = sundata(:, 6);   % [mV]
     Udiode     = sundata(:, 7);   % [mV]
     Debug      = sundata(:, 8);   % filtered(Udiff) - analogReadMilliVolts()

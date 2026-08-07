@@ -15,8 +15,8 @@ set style line 3 lt rgb "grey" lw 1
 
 #plot "gnuplot_data.txt" using 1:2 with linespoints title "XY Data"
 
-plot  "gnuplot_data.txt" using 1:4 with lines      axes x1y1 title "Solar Intensity [%]", \
-      "gnuplot_data.txt" using 1:5 with lines      axes x1y2 title "Solar Cumulative"
+plot  "gnuplot_data.txt" using 1:2 with lines      axes x1y1 title "Solar Intensity [%]", \
+      "gnuplot_data.txt" using 1:3 with lines      axes x1y2 title "Solar Cumulative"
 #     "gnuplot_data.txt" using 1:2 with lines ls 3 axes x1y1 title "Charge [Ah]"
 
 #pause -1 "Press any key to exit..."
