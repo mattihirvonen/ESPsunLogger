@@ -9,6 +9,7 @@
 // https://hackaday.io/project/205380-adc-performance-arduino-vs-esp32-vs-ads1115
 // https://randomnerdtutorials.com/esp32-adc-analog-read-arduino-ide/
 // https://randomnerdtutorials.com/esp-idf-esp32-gpio-analog-adc/
+// https://github.com/256dpi/arduino-mqtt
 //
 // Use here floating points (non efficient and only sign+23 bits mantissa)
 //
@@ -21,10 +22,7 @@
 #include <string.h>
 #include <WiFi.h>
 #include <freertos/FreeRTOS.h>
-
-// #include <PubSubClient.h>         // MQTT
-   #include <MQTT.h>                 // MQTT
-
+#include <MQTT.h>                 // MQTT
 #include "esp32lib.hpp"
 
 #define UNUSED  __attribute__((unused))
@@ -50,11 +48,12 @@
 #define MQTT_USERNAME    "public"
 #define MQTT_PASSWORD    "public"
 #define MQTT_TOPIC       "solar/tikku"         // Select topic to not conflict with public brokers!
+#define MQTT_SUBSCRIBE   0
 
-// #define MQTT_BROKER  "192.168.1.184"
-// #define MQTT_BROKER  "broker.hivemq.com"         // Test topic conflict with wild card using
+// #define MQTT_BROKER  "192.168.1.184"             // OK
    #define MQTT_BROKER  "test.mosquitto.org"        // OK, require empty USERNAME and PASSWORD
 // #define MQTT_BROKER  "public.cloud.shiftr.io"    // OK, require non empty USERNAME and PASSWORD
+// #define MQTT_BROKER  "broker.hivemq.com"         // Test topic conflict with wild card using
 
 //-----------------------------------------------------------------------------------------
 
@@ -68,32 +67,25 @@ const char* password = "YOUR_ROUTER_WiFi_PASSWORD";
 
 //-----------------------------------------------------------------------------------------
 
-// Replace with your MQTT broker details
-const char*  mqtt_server = MQTT_BROKER;
-
-WiFiClient   espClient;
+WiFiClient   wifiClient;
 MQTTClient   mqttClient;
 
-/*
-void mqtt_callback(char* topic, byte* message, unsigned int UNUSED length)
-{
-  // NOTE:
-  // Expect here "message" is printable ASCII text (not binary data) !!!
-
-  Serial.print("Message received - topic: ");
-  Serial.println(topic);
-  Serial.print("Message received - data:  ");
-  Serial.println((char*)message);
-}
-*/
 
 void messageReceived(String &topic, String &payload) {
-  Serial.println("incoming: " + topic + " - " + payload);
-
   // Note: Do not use the client in the callback to publish, subscribe or
   // unsubscribe as it may cause deadlocks when other things arrive while
   // sending and receiving acknowledgments. Instead, change a global variable,
   // or push to a queue and handle it in the loop after calling `client.loop()`.
+
+  #if 0
+  Serial.println("incoming: " + topic + " - " + payload);
+  #else
+  // Note: Expect "payload" is printable ASCII text (not binary data)
+  Serial.print("Message received - topic: ");
+  Serial.println(topic.c_str());
+  Serial.print("Message received - data:  ");
+  Serial.println(payload.c_str());
+  #endif
 }
 
 
@@ -114,8 +106,10 @@ void connect() {
 
   Serial.println("\nconnected!");
 
+  #if MQTT_SUBSCRIBE
   mqttClient.subscribe(MQTT_TOPIC);
-//client.unsubscribe(TOPIC);
+//client.unsubscribe(MQTT_TOPIC);
+  #endif
 }
 
 //-----------------------------------------------------------------------------------------
@@ -217,14 +211,9 @@ void setup( void )
     setup_wifi( ssid, password );
 
     // Connect to MQTT broker
-	/*
-    mqttClient.setServer( mqtt_server, 1883 );
-    mqttClient.setCallback( mqtt_callback );
-	*/
-	// Note: Local domain names (e.g. "Computer.local" on OSX) are not supported
+    // Note: Local domain names (e.g. "Computer.local" on OSX) are not supported
     // by Arduino. You need to set the IP address directly.
- // mqttClient.begin("public.cloud.shiftr.io", espClient);
-    mqttClient.begin(MQTT_BROKER, espClient);
+    mqttClient.begin(MQTT_BROKER, wifiClient);
     mqttClient.onMessage(messageReceived);
 
     connect();
@@ -257,25 +246,14 @@ void loop( void )
            int32_t  now      = millis();
            char     line[256];
 
-/*
-    if (!mqttClient.connected()) {
-        mqtt_reconnect( mqttClient );
-//      mqttClient.subscribe( MQTT_TOPIC );
-    }
     mqttClient.loop();
-*/
+    delay(10);         // <- fixes some issues with WiFi stability
 
-    mqttClient.loop();
- // delay(10);  // <- fixes some issues with WiFi stability
-
-    if (!mqttClient.connected()) {
+    if ( !mqttClient.connected() ) {
         connect();
     }
 
-    #if 0
-    return;    // Test MQTT with minimal CPU load in "loop" function
-    #else
-
+    // Publish MQTT message every 1 seconds (PERIOD)
     if ( (int32_t)(now - previous) < PERIOD ) {
         return;
     }
@@ -291,27 +269,21 @@ void loop( void )
     }
     sum += solarIntensity;    // Overflow after few years
 
-    #if 0  // Debug feature
-    snprintf( line, sizeof(line), "%5d: adc %4d - solar intensity %3d - cumulative %2ld\r\n", counter, adcData_diff, solarIntensity, sum / counter );
-    Serial.printf("%s", line
-    #endif
-
-    // Publish MQTT message every 1 seconds (PERIOD)
     String topic      = MQTT_TOPIC;
     float  cumulative = cumulative_sum( sum );
 
     int mV = analogReadMilliVolts( ADC_PANEL );  // Debug testing
 
-    // Produce Octave and GnuPlot compatible data row:
-//  snprintf( line, sizeof(line), "%6d  %4d  %3d  %.3f\r\n", counter, adcData_diff, solarIntensity, cumulative );
+    // Produce Octave and GnuPlot compatible data row
+    #if 1
     snprintf( line, sizeof(line), "%3d  %.3f  %6d  %4d  %4d  %4d  %4d\r\n",
               solarIntensity, cumulative, counter, adcData_diff, adcValue.panel, adcValue.diode, adcValue.panel - mV );
+    #else
+    snprintf( line, sizeof(line), "%3d  %.3f  %6d  %4d\r\n", solarIntensity, cumulative, counter, adcData_diff );
+    #endif
 
-//  mqttClient.publish( topic.c_str(), line, strlen(line) + 2 );
-    mqttClient.publish( topic.c_str(), line );
+    mqttClient.publish( topic.c_str(), line, strlen(line) + 2 );  // Send also string terminating NULL character
 
-    Serial.print("Message published: ");
+    Serial.print("Message published:        ");
     Serial.print(line);
-
-    #endif  // Test MQTT with minimal CPU load in "loop" function
 }
