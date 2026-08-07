@@ -47,8 +47,16 @@ Application use following libraries
 Read file *linux/README.md*
 
 ### Some Free public MQTT Servers
-- test.mosquitto.org
-- broker.hivemq.com
+Look also using browser following sites web URL ( https://... ) 
+- test.mosquitto.org - Ports: MQTT 1883, WebSocket 8081 (wss://test.mosquitto.org)
+- https://test.mosquitto.org
+- public.cloud.shiftr.io - Ports: MQTT 1883, WebSocket 443 (wss://public.cloud.shiftr.io , Public credentials: try / try , Security: Always prefer wss:// with TLS)
+- https://www.shiftr.io/docs/cloud/
+- broker.hivemq.com - Ports: MQTT 1883, WebSocket 8884 (wss://broker.hivemq.com , Path: /mqtt)
+- https://www.hivemq.com/mqtt/public-mqtt-broker/
+- https://www.hivemq.com/blog/
+- https://www.hivemq.com/mqtt-toolbox/
+HiveMQ site have many (generic) interesting artichles about MQTT
 
 ### Example commands to Testing MQTT Server Message Passing
 - http://www.steves-internet-guide.com/mosquitto_pub-sub-clients/

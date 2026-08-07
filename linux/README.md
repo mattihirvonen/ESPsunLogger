@@ -69,6 +69,7 @@ Example command(s) to use functin from Octave's command line
 - _sunplot.m_                 &emsp;  Octave function to plot sunLogger/mqttlogger captured data matrix
 - _gnuplot.bat_               &emsp;  Windows command line script to GnuPlot sunLogger/mqttlogger captured data
 - _gnuplot_script.gp_         &emsp;  GnuPlot command scrip (used by "gnuplot.bat")
+- _swapcols.c_                &emsp;  Helper application to swap numerical data text file's columns
 
 ### Octave Command Examples
 Load numerical matrix data (text file) into memory matrix "*__M1__*"

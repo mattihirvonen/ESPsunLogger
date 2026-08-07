@@ -5,6 +5,7 @@ WiFiConf.h
 mqttLogger
 mqttLogger.layout
 swapcols
+data/aurinko*
 data/*.dat
 data/*.txt
 data/*.log
