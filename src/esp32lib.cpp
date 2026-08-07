@@ -1,7 +1,9 @@
 
 #include <WiFi.h>
 #include <WiFiUdp.h>
-#include <PubSubClient.h>    // MQTT
+#include <MQTT.h>
+
+// #include <PubSubClient.h>    // MQTT
 
 // ---------------------------------------------------------------------------------------
 // Connect to the WiFi router

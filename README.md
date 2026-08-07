@@ -30,8 +30,8 @@ Calibration sequence
 - install selected shunt resistor as load to solar panel
 - check that loaded panel voltage over shunt resistor and (schottky) diode is less than 3.2V (when sun shine at full power)
 - connect panel+shunt resistor to ESP processor
-- read  application measured ADC value
-- update "*ADCref*" variable value with this measured ADC value
+- read  application measured ADCdiff value
+- update "*ADCref*" variable value with this measured ADCdiff value
 
 ### Build Environments
 Application can build using
