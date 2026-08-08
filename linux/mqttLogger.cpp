@@ -324,7 +324,7 @@ int udp_recvfrom( int sockfd )
 
 int handleMQTTmessage( char *message, int bytes_received )
 {
-    #define MQTT_BUFFER_SIZE  256
+    #define MQTT_BUFFER_SIZE  2048
 
     static int   messages = 0, count = 0;
     static int   UNUSED cserr = 0;
