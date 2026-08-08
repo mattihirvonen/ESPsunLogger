@@ -333,8 +333,9 @@ int handleMQTTmessage( char *buffer, int bytes_received )
         printTime( seconds, conf.time_scale );
         printf("  %s", buffer);
 //      printf("\n");
-        fflush( NULL );
-        sync();
+        //
+        fflush( NULL );   // Flush printf() to stdout
+    //  sync();           // Disable sync() to avoid dummy HD operations
         count = 0;
     }
     return 0;
