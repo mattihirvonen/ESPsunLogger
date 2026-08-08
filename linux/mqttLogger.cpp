@@ -374,9 +374,9 @@ void on_connect(UNUSED struct mosquitto *mosq, UNUSED void *obj, int rc)
 
 void on_message(UNUSED struct mosquitto *mosq, UNUSED void *obj, const struct mosquitto_message *msg)
 {
-    char *payload = reinterpret_cast<char*>( msg->payload );
+    char UNUSED *payload = reinterpret_cast<char*>( msg->payload );
 
-    payload[ msg->payloadlen ] = 0;
+//  payload[ msg->payloadlen ] = 0;  // Handle in handleMQTTmessage() - avoid seg. fault
     #if 1
 //  handleShuntMessage( reinterpret_cast<char*>( msg->payload ), msg->payloadlen );
     handleMQTTmessage( reinterpret_cast<char*>( msg->payload ), msg->payloadlen );
