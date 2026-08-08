@@ -354,7 +354,7 @@ int handleMQTTmessage( char *message, int bytes_received )
         printf("  %s", buffer);
         printf("\n");
         //
-    //  fflush( NULL );   // Flush printf() to stdout
+        fflush( NULL );   // Flush printf() to stdout
     //  sync();           // Disable sync() to avoid dummy HD operations
         count = 0;
     }
