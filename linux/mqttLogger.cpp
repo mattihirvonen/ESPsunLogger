@@ -95,6 +95,16 @@ int64_t time_ms( void )
     return ms;
 }
 
+
+void strip_cr_lf( char *buffer, int len )
+{
+    for ( int i = 0; i < len; i++ ) {
+        if ( *buffer == '\r' )  *buffer = 0;
+        if ( *buffer == '\n' )  *buffer = 0;
+        buffer++;
+    }
+}
+
 // -----------------------------------------------------------------------------
 #if 0
 
@@ -312,14 +322,24 @@ int udp_recvfrom( int sockfd )
 // -----------------------------------------------------------------------------
 // MQTT
 
-
-int handleMQTTmessage( char *buffer, int bytes_received )
+int handleMQTTmessage( char *message, int bytes_received )
 {
-    static int  messages = 0, cserr = 0, count = 0;
+    #define MQTT_BUFFER_SIZE  256
 
+    static int   messages = 0, count = 0;
+    static int   UNUSED cserr = 0;
+           char  buffer[MQTT_BUFFER_SIZE];
+
+    if ( bytes_received <= 0) {
+        return -1;
+    }
+    if ( bytes_received > (MQTT_BUFFER_SIZE - 1) ) {
+         bytes_received =  MQTT_BUFFER_SIZE - 1;
+    }
     // Null-terminate the received data for safe printing and string operations
-    if ( bytes_received > 0 ) {  buffer[ bytes_received ] = 0;  }
-    else                      {  return -1;                     }
+    memcpy( buffer, message, bytes_received );
+    buffer[ bytes_received ] = 0;
+    strip_cr_lf( buffer, bytes_received );
 
     messages += 1;
 
@@ -332,13 +352,13 @@ int handleMQTTmessage( char *buffer, int bytes_received )
         }
         printTime( seconds, conf.time_scale );
         printf("  %s", buffer);
-//      printf("\n");
+        printf("\n");
         //
-        fflush( NULL );   // Flush printf() to stdout
+    //  fflush( NULL );   // Flush printf() to stdout
     //  sync();           // Disable sync() to avoid dummy HD operations
         count = 0;
     }
-    return 0;
+    return bytes_received;
 }
 
 
@@ -438,8 +458,8 @@ void parse_args( int argc, char *argv[] )
 
 int main(int argc, char *argv[])
 {
-    pthread_t thread_id;
-    int       sockfd;
+    pthread_t   thread_id;
+    int UNUSED  sockfd;
 
     /* Determine port from arguments or use default
     if (argc == 2) {
