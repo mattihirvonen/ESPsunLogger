@@ -12,6 +12,12 @@ When estimate true solar panel output, we have to understand also solar panel's 
 - azimuth (compass direction from north - degrees)
 - height (above horizon - degrees)
 
+![Panel horizontal - Caravan "roof installation"](sunHistory_2026-08-09.pdf)
+
+Scale
+- Intensity 100% is same as theretical 100W solar panel max output at noon from clear sky (100W)
+- Cumulative 1.0 is same as 100 Wh (with 100W solar panel))
+
 ### Measuring Strategy
 We will measure solar cell's "short circuit" current using small current shunt resistor.
 Here in 60 deg. north latitude sun will shine about 950 W/m2 from clear sky at noon (summer time).
@@ -41,10 +47,14 @@ Application can build using
 ### External Libraries
 Application use following libraries
 - *MQTT* MQTT library by Joel Gaehwiler
-- *PubSubClient* MQTT library by Nick O'Leary (obsolete)
+- *PubSubClient* MQTT library by Nick O'Leary (obsolete, not used any more)
 
 ### Data Post Prosessing And Visualization
 Read file *linux/README.md*
+
+Data post prosessing and visualization tools.
+- https://octave.org/
+- http://gnuplot.info/
 
 ### Some Free public MQTT Servers
 Look also using browser following sites web URL ( https://... ) 
