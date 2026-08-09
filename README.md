@@ -15,8 +15,10 @@ When estimate true solar panel output, we have to understand also solar panel's 
 ![Panel horizontal - Caravan "roof installation"](sunHistory_2026-08-09.pdf)
 
 Scale
-- Intensity 100% is same as theretical 100W solar panel max output at noon from clear sky (100W)
+- Intensity 100% is same as theoretical 100W solar panel max output at noon from clear sky (100W)
 - Cumulative 1.0 is same as 100 Wh (with 100W solar panel))
+- ToDo: convert picture to GIF, which github show on this same web page - click link see example
+
 
 ### Measuring Strategy
 We will measure solar cell's "short circuit" current using small current shunt resistor.
