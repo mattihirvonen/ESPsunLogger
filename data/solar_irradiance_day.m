@@ -1,8 +1,8 @@
 ## ==================================================
 
-## File: solar_panel_intensity.m
+## File: solar_irradiance_day.m
 ## Usage:
-##   [I_total, I_direct, I_diffuse, I_reflected] = ...
+##   [I_direct, I_diffuse, I_reflected, I_total] = ...
 ##       solar_irridance_day(lat_deg, lon_deg, tz_offset, day_of_year[, time_hours [, albedo]]);
 ##
 ## lat_deg     : Latitude in degrees (-90 to 90)
@@ -26,7 +26,7 @@
 ##  time   = 0:0.10:24;     % every 6 minutes
 ##  albedo = 0.25;          % slightly reflective ground
 ##
-##  [I_total, I_direct, I_diffuse, I_reflected] = ...
+##  [I_direct, I_diffuse, I_reflected, I_total] = ...
 ##      solar_irridance_day(lat, lon, tz, day, time, albedo);
 
 ## ==================================================

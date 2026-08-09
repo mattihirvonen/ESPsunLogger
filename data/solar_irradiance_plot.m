@@ -14,7 +14,7 @@ lon    = 25.0500;
 tz     = +3;          % EET2+summertime
 day    = 221;         % about end of july
 time   = 0:0.10:24;   % every 15 minutes
-albedo = 0.00;        % no reflective ground
+albedo = 0.20;        % slightly reflective ground
 
 
 % Code	Color	RGB Triplet
@@ -50,7 +50,7 @@ albedo = 0.00;        % no reflective ground
 
 
 [I_direct, I_diffuse, I_reflected, I_total ] = ...
-    solar_irradiance_day(lat, lon, tz, day, time, tilt, az, albedo);
+    solar_irradiance_day(lat, lon, tz, day, time, albedo);
 
 % Plot
 figure;
