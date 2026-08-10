@@ -7,7 +7,7 @@
 ## elliptic radius integration of traverse round sun.
 ##
 
-function [sun_altitude, sun_azimuth, LHA, GHA, GMST, decl] = ...
+function [sun_altitude, sun_azimuth, LHA, GHA, GMST, declination] = ...
     sun_position( lat_deg, lon_deg, tz_offset, year, month, day, local_hour, varargin )
 
   % Optional parameters
@@ -32,8 +32,8 @@ function [sun_altitude, sun_azimuth, LHA, GHA, GMST, decl] = ...
   lon_rad = deg2rad(lon_deg);
 
   % --- Solar declination ---
-  decl     = sun_declination(year, month, day);
-  decl_rad = deg2rad( decl );
+  declination = sun_declination(year, month, day);
+  decl_rad    = deg2rad( declination );
 
   % --- Local time to UTC ---
   UTC_hour = local_hour - tz_offset;
@@ -42,7 +42,7 @@ function [sun_altitude, sun_azimuth, LHA, GHA, GMST, decl] = ...
   [GHA, GMST] = sun_GHA( year, month, day, UTC_hour, minute, second );
 
   % --- Hour angle ---
-  LHA     = GHA + lon_deg;;
+  LHA     = GHA + lon_deg;
   LHA     = mod(LHA, 360);    % Normalize LHA to [0, 360)
   LHA_rad = deg2rad( LHA );
 
@@ -57,6 +57,7 @@ function [sun_altitude, sun_azimuth, LHA, GHA, GMST, decl] = ...
   sun_altitude = rad2deg( Hc_rad );
 
   % --- Sun azimuth ---
+  % "Piloting/Navigation with the Pocket Calculator" page 171
   cosZ = ( sin(decl_rad) - sin(lat_rad) * sin(Hc_rad) ) / ...
          ( cos(Hc_rad) * cos(lat_rad) );
 
