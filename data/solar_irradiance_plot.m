@@ -1,10 +1,11 @@
 
+%{
 % Example: Sydney, Australia, December 21
 lat    = -33.8688;
 lon    = 151.2093;
 tz     = +11;         % AEDT
 day    = 355;         % Dec 21
-time   = 0:0.10:24;   % every 15 minutes
+time   = 0:0.25:24;   % every 15 minutes
 albedo = 0.25;        % slightly reflective ground
 
 
@@ -13,9 +14,9 @@ lat    = 60.3000;
 lon    = 25.0500;
 tz     = +3;          % EET2+summertime
 day    = 221;         % about end of july
-time   = 0:0.10:24;   % every 15 minutes
+time   = 0:0.10:24;   % every 6 minutes
 albedo = 0.20;        % slightly reflective ground
-
+%}
 
 % Code	Color	RGB Triplet
 % 'r'	Red     [1, 0, 0]
@@ -48,19 +49,40 @@ albedo = 0.20;        % slightly reflective ground
 % If you want, I can give you a full Octave color/style cheat sheet that includes markers,
 % line styles, and RGB usage. Would you like me to prepare that?
 
+function [I_direct, I_diffuse, I_reflected, I_total] = ...
+    solar_irradiance_plot( varargin )
 
-[I_direct, I_diffuse, I_reflected, I_total ] = ...
-    solar_irradiance_day(lat, lon, tz, day, time, albedo);
+  % Defauts and optional arguments
+  % Example: Hiekkaharju, Finland, about begin of august
+  lat    = 60.3000;
+  lon    = 25.0500;
+  tz     = +3;          % EET2+summertime
+  day    = 221;         % about end of july
+  time   = 0:0.10:24;   % every 6 minutes
+  albedo = 0.20;        % slightly reflective ground
 
-% Plot
-figure;
-plot(time, I_total,     'r--', 'LineWidth', 1);    % Red
-hold on;
-plot(time, I_direct,    'k',   'LineWidth', 1);    % Black
-plot(time, I_diffuse,   'b..', 'LineWidth', 1);    % Blue
-plot(time, I_reflected, 'g:',  'LineWidth', 2);    % Green
-hold off;
-xlabel('Local Time [hours]');
-ylabel('Irradiance [W/m²]');
-title(sprintf('Irradiance on Day %d at %.2f°N', day, lat));
-grid on;
+  if length(varargin) >= 1, day = varargin{1}; endif
+  if length(varargin) >= 2, tz  = varargin{2}; endif
+  if length(varargin) >= 3, lat = varargin{3}; endif
+  if length(varargin) >= 4, lon = varargin{4}; endif
+
+  % ------------------------------------------------------------------
+
+  [I_direct, I_diffuse, I_reflected, I_total] = ...
+      solar_irradiance_day(lat, lon, tz, day, time, albedo);
+
+  % Plot
+  figure;
+  plot(time, I_total,     'r--', 'LineWidth', 1);    % Red
+  hold on;
+  plot(time, I_direct,    'k',   'LineWidth', 1);    % Black
+  plot(time, I_diffuse,   'b..', 'LineWidth', 1);    % Blue
+  plot(time, I_reflected, 'g:',  'LineWidth', 2);    % Green
+  hold off;
+  xlabel('Local Time [hours]');
+  ylabel('Irradiance [W/m²]');
+  title(sprintf('Irradiance on Day %d at %.2f°N', day, lat));
+  grid on;
+
+end
+
