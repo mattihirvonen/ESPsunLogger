@@ -34,7 +34,7 @@
 
 ## ==================================================
 
-function [I_direct, I_diffuse, I_reflected, I_total] = ...
+function [I_direct, I_diffuse, I_reflected, I_total, altitude, azimuth, LHA, GHA, declination] = ...
     solar_irradiance( lat_deg, lon_deg, tz_offset, day_of_year, local_time ,varargin )
 
   % Irradiance calibration fix by MH (Finland summer time):
@@ -43,7 +43,7 @@ function [I_direct, I_diffuse, I_reflected, I_total] = ...
 
   % --- Input validation ---
   if nargin < 5
-    error("Usage: solar_intensity(lat, lon, tz_offset, day_of_year, local_time [, albedo])");
+    error("Usage: solar_irradiance(lat, lon, tz_offset, day_of_year, local_time [, albedo])");
   endif
   if any(~isnumeric([lat_deg, lon_deg, tz_offset, day_of_year])) || ...
      abs(lat_deg) > 90 || abs(lon_deg) > 180 || abs(tz_offset) > 14 || ...
@@ -59,32 +59,20 @@ function [I_direct, I_diffuse, I_reflected, I_total] = ...
   if length(varargin) >= 1, albedo = varargin{1}; endif
 
   %--------------------------------------------------------------------
-
   % --- Constants ---
 % G_sc = 1367;                                % Solar constant [W/m²]
   G_sc = 1367 * irradiation_calibration_fix;  % Solar constant [W/m²], fix by MH
   lat_rad = deg2rad(lat_deg);
 
-  % --- Solar declination ---
-  decl_rad = deg2rad(23.45) * sin(deg2rad(360 * (284 + day_of_year) / 365));
+  %--------------------------------------------------------------------
+  % Get sun position on the sky
 
-  % --- Equation of time ---
-  B = deg2rad(360 * (day_of_year - 81) / 364);
-  eq_time_min = 9.87*sin(2*B) - 7.53*cos(B) - 1.5*sin(B);
+  [altitude, azimuth, LHA, GHA, declination] = ...
+      solar_position( lat_deg, lon_deg, tz_offset, day_of_year, local_time );
 
-  % --- Time correction factor ---
-  time_corr_min = 4 * (lon_deg - tz_offset * 15) + eq_time_min;
+  elev_rad = deg2rad( altitude );
 
-  % --- Local solar time ---
-  local_solar_time = local_time + time_corr_min / 60;
-
-  % --- Hour angle ---
-  hour_angle_rad = deg2rad(15 * (local_solar_time - 12));
-
-  % --- Solar elevation ---
-  sin_elev = sin(lat_rad).*sin(decl_rad) + cos(lat_rad).*cos(decl_rad).*cos(hour_angle_rad);
-  elev_rad = asin(max(sin_elev, 0));
-
+  %--------------------------------------------------------------------
   % --- Earth–Sun distance factor ---
   dist_factor = 1 + 0.033 * cos(deg2rad(360 * day_of_year / 365));
 
@@ -114,6 +102,7 @@ function [I_direct, I_diffuse, I_reflected, I_total] = ...
 
   % --- Total irradiance ---
   I_total = I_direct + I_diffuse + I_reflected;
+
 endfunction
 
 
