@@ -6,8 +6,8 @@
 // #include <PubSubClient.h>    // MQTT
 
 // ---------------------------------------------------------------------------------------
-// Connect to the WiFi router
 
+// Connect to the WiFi router
 void setup_wifi( const char *ssid, const char *password )
 {
   Serial.println("Connecting to Wi-Fi...");
@@ -19,6 +19,16 @@ void setup_wifi( const char *ssid, const char *password )
   Serial.println("\nConnected  to Wi-Fi!");
   Serial.print("ESP32 IP Address: ");
   Serial.println(WiFi.localIP());
+}
+
+
+// Setup WiFi Access Point
+void setup_wifi_AP( const char *ssid, const char *password )
+{
+  WiFi.softAP(ssid, password);
+  IPAddress IP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(IP);
 }
 
 // ---------------------------------------------------------------------------------------

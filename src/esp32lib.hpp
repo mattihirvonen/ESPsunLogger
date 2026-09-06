@@ -1,6 +1,8 @@
 
 void setup_wifi( const char *ssid, const char *password );
 
+void setup_wifi_AP( const char *ssid, const char *password );
+
 void setup_uart2( HardwareSerial &Serial2, int bitrate, int RxBufferSize, int TxBufferSize );
 
 void setup_udp( WiFiUDP &udp, const int udpPort );

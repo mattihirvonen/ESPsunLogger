@@ -27,6 +27,10 @@
 
 #define UNUSED  __attribute__((unused))
 
+#define WIFI_ACCESSPOINT  1     // Zero: connect to WiFi router
+#define MQTT_SERVER       0     // Local MQTT broker (future feature)
+#define MQTT_CLIENT       0     // Connect to MQTT broker?
+
 //
 // Calibration info:
 // - Panel 1:  ESP32 Devkit1, ADC_DIFF=2200, Rshunt=82  (2026-07-28)
@@ -44,6 +48,7 @@
 #define SPmax        950      // Sun's peak power [W/m2] at latitude 60 deg. north (summer time)
 #define ADC_REF     1800      // Calibration value: "adcValue.diff" at "SPmax"
 #define LED            2      // GPIO2 (blue LED on devkit)
+#define BUTTON         0      // GPIO0 (boot button on devkit)
 
 #define MQTT_CLIENT_ID  "aurinkopaneeli"
 #define MQTT_USERNAME   "public"              // public.cloud.shiftr.io
@@ -51,10 +56,14 @@
 #define MQTT_TOPIC      "solar/tikku"         // Select topic to not conflict with public brokers!
 #define MQTT_SUBSCRIBE   0
 
-   #define MQTT_BROKER  "192.168.1.184"             // OK
-// #define MQTT_BROKER  "test.mosquitto.org"        // OK, require empty USERNAME and PASSWORD
-// #define MQTT_BROKER  "public.cloud.shiftr.io"    // OK, require non empty USERNAME and PASSWORD
-// #define MQTT_BROKER  "broker.hivemq.com"         // Test topic conflict with wild card using
+   #if       WIFI_ACCESSPOINT
+   #define   MQTT_BROKER  "127.0.0.1"                 // Localhost
+   #else
+   #define   MQTT_BROKER  "192.168.1.184"             // OK
+// #define   MQTT_BROKER  "test.mosquitto.org"        // OK, require empty USERNAME and PASSWORD
+// #define   MQTT_BROKER  "public.cloud.shiftr.io"    // OK, require non empty USERNAME and PASSWORD
+// #define   MQTT_BROKER  "broker.hivemq.com"         // Test topic conflict with wild card using
+   #endif // WIFI_ACCESSPOINT
 
 //-----------------------------------------------------------------------------------------
 
@@ -62,8 +71,10 @@
 #if 1
 #include "WiFiConf.h"   // Hide my secrets here !!!
 #else
-const char* ssid     = "YOUR_ROUTER_WiFi_SSID";
-const char* password = "YOUR_ROUTER_WiFi_PASSWORD";
+const char* ssid        = "YOUR_ROUTER_WiFi_SSID";
+const char* password    = "YOUR_ROUTER_WiFi_PASSWORD";
+const char* ssid_AP     = "ACCESSPOINT_WiFi_SSID";
+const char* password_AP = "ACCESSPOINT_WiFi_PASSWORD";
 #endif
 
 //-----------------------------------------------------------------------------------------
@@ -90,15 +101,18 @@ void messageReceived(String &topic, String &payload) {
 }
 
 
-void connect() {
+void connect_MQTT() {
+  #if WIFI_ACCESSPOINT == 0
   Serial.print("\nChecking   WiFi...");
   while (WiFi.status() != WL_CONNECTED) {
+    digitalWrite(LED, LOW);  // Turn the LED off
     Serial.print(".");
     delay(1000);
-    digitalWrite(LED, LOW); // Turn the LED off
   }
   Serial.print("\nConnected  WiFi");
+  #endif // WIFI_ACCESSPOINT
 
+  #if MQTT_CLIENT
   Serial.print("\nConnecting MQTT...");
 //while (!mqttClient.connect(MQTT_CLIENT_ID)) {
 //while (!mqttClient.connect(MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD)) {   // "public.cloud.shiftr.io"
@@ -107,13 +121,13 @@ void connect() {
     delay(1000);
   }
   Serial.println("\nConnected  MQTT");
-
   digitalWrite(LED, HIGH);  // Turn the LED on
 
   #if MQTT_SUBSCRIBE
   mqttClient.subscribe(MQTT_TOPIC);
 //client.unsubscribe(MQTT_TOPIC);
-  #endif
+  #endif // MQTT_SUBSCRIBE
+  #endif // MQTT_CLIENT
 }
 
 //-----------------------------------------------------------------------------------------
@@ -211,19 +225,26 @@ void setup( void )
     delay( 1500 );
     Serial.println("\n\nStart...");
 
-    pinMode(LED, OUTPUT);      // Set GPIO2 (blue LED) as an output pin
-    digitalWrite(LED, LOW);    // Turn the LED off
+    pinMode(BUTTON, INPUT_PULLUP);  // Enable internal pull-up resistor
+    pinMode(LED, OUTPUT);           // Set GPIO2 (devkit's blue LED) as an output pin
+    digitalWrite(LED, LOW);         // Turn the LED off
 
+    #if   WIFI_ACCESSPOINT
+    setup_wifi_AP( ssid_AP, password_AP );
+    #else
     // Connect to Wi-Fi router
     setup_wifi( ssid, password );
+    #endif // WIFI_ACCESSPOINT
 
+    #if MQTT_CLIENT
     // Connect to MQTT broker
     // Note: Local domain names (e.g. "Computer.local" on OSX) are not supported
     // by Arduino. You need to set the IP address directly.
     mqttClient.begin(MQTT_BROKER, wifiClient);
     mqttClient.onMessage(messageReceived);
 
-    connect();
+    connect_MQTT();
+    #endif // MQTT_CLIENT
 
     #if 1
     // There is broblem with public servers like broker.hivemq.com
@@ -245,12 +266,33 @@ void setup( void )
 
 void loop( void )
 {
+    int32_t  now = millis();
+
+    // - - - - - - - - - - - - - - - - - - - - - - -
+
+    #if WIFI_ACCESSPOINT
+
+    #define BLINK   1000L //   [ms]
+    static int      ledstate = 0;
+    static int32_t  blink    = 0;
+
+    if ( (int32_t)(now - blink) >= BLINK ) {
+      blink    += BLINK;
+      ledstate ^= 1;
+      digitalWrite(LED, ledstate);    // Toggle the LED on/off
+    }
+
+    #endif // WIFI_ACCESSPOINT
+
+    // - - - - - - - - - - - - - - - - - - - - - - -
+
+    #if MQTT_CLIENT
+    
     #define PERIOD  1000L  // [ms]
 
     static int      counter  = 0;
     static int32_t  sum      = 0;
     static int32_t  previous = 0;
-           int32_t  now      = millis();
            char     line[256];
 
     mqttClient.loop();
@@ -293,4 +335,6 @@ void loop( void )
 
     Serial.print("Message published:        ");
     Serial.print(line);
+
+    #endif // MQTT_CLIENT
 }
