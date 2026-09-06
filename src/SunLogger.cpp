@@ -43,15 +43,16 @@
 #define ADC_DIODE     35      // GPIO pin: Analog ADC1_CH7 - ESP32 DEVKIT V1
 #define SPmax        950      // Sun's peak power [W/m2] at latitude 60 deg. north (summer time)
 #define ADC_REF     1800      // Calibration value: "adcValue.diff" at "SPmax"
+#define LED            2      // GPIO2 (blue LED on devkit)
 
-#define MQTT_CLIENT_ID   "aurinkopaneeli"
-#define MQTT_USERNAME    "public"
-#define MQTT_PASSWORD    "public"
-#define MQTT_TOPIC       "solar/tikku"         // Select topic to not conflict with public brokers!
+#define MQTT_CLIENT_ID  "aurinkopaneeli"
+#define MQTT_USERNAME   "public"              // public.cloud.shiftr.io
+#define MQTT_PASSWORD   "public"              // public.cloud.shiftr.io
+#define MQTT_TOPIC      "solar/tikku"         // Select topic to not conflict with public brokers!
 #define MQTT_SUBSCRIBE   0
 
-// #define MQTT_BROKER  "192.168.1.184"             // OK
-   #define MQTT_BROKER  "test.mosquitto.org"        // OK, require empty USERNAME and PASSWORD
+   #define MQTT_BROKER  "192.168.1.184"             // OK
+// #define MQTT_BROKER  "test.mosquitto.org"        // OK, require empty USERNAME and PASSWORD
 // #define MQTT_BROKER  "public.cloud.shiftr.io"    // OK, require non empty USERNAME and PASSWORD
 // #define MQTT_BROKER  "broker.hivemq.com"         // Test topic conflict with wild card using
 
@@ -90,21 +91,24 @@ void messageReceived(String &topic, String &payload) {
 
 
 void connect() {
-  Serial.print("checking wifi...");
+  Serial.print("\nChecking   WiFi...");
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(1000);
+    digitalWrite(LED, LOW); // Turn the LED off
   }
+  Serial.print("\nConnected  WiFi");
 
-  Serial.print("\nconnecting...");
+  Serial.print("\nConnecting MQTT...");
 //while (!mqttClient.connect(MQTT_CLIENT_ID)) {
 //while (!mqttClient.connect(MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD)) {   // "public.cloud.shiftr.io"
   while (!mqttClient.connect(MQTT_CLIENT_ID, "", "")) {                         // "test.mosquitto.org"
     Serial.print(".");
     delay(1000);
   }
+  Serial.println("\nConnected  MQTT");
 
-  Serial.println("\nconnected!");
+  digitalWrite(LED, HIGH);  // Turn the LED on
 
   #if MQTT_SUBSCRIBE
   mqttClient.subscribe(MQTT_TOPIC);
@@ -206,6 +210,9 @@ void setup( void )
     Serial.begin( 115200 );
     delay( 1500 );
     Serial.println("\n\nStart...");
+
+    pinMode(LED, OUTPUT);      // Set GPIO2 (blue LED) as an output pin
+    digitalWrite(LED, LOW);    // Turn the LED off
 
     // Connect to Wi-Fi router
     setup_wifi( ssid, password );
