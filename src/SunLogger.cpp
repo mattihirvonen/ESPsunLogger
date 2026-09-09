@@ -22,9 +22,11 @@
 #include <string.h>
 #include <WiFi.h>
 #include <freertos/FreeRTOS.h>
-#include <MQTT.h>
 #include "esp32lib.hpp"
 #include "pinMap.h"               // LED, BUTTON, AIN0, AIN1, ...
+#include "measure.h"              // adcValue_t
+#include "mqttClient.h"           // setup_mqtt(), loop_mqtt()
+
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -63,25 +65,9 @@ threadSafeFS::FS TSFS (LittleFS);
 #define ADC_DIODE     AIN7    // GPIO pin: Analog ADC1_CH7 - ESP32 DEVKIT V1
 #endif
 
-
-#define ADC_CHANNELS   2      // 2: shunt and diode // 1: only shunt (fix voltage diode)
-#define SPmax        950      // Sun's peak power [W/m2] at latitude 60 deg. north (summer time)
-#define ADC_REF     1800      // Calibration value: "adcValue.diff" at "SPmax"
-
-#define MQTT_CLIENT_ID  "aurinkopaneeli"
-#define MQTT_USERNAME   "public"              // public.cloud.shiftr.io
-#define MQTT_PASSWORD   "public"              // public.cloud.shiftr.io
-#define MQTT_TOPIC      "solar/tikku"         // Select topic to not conflict with public brokers!
-#define MQTT_SUBSCRIBE   0
-
-   #if       WIFI_ACCESSPOINT
-   #define   MQTT_BROKER  "127.0.0.1"                 // Localhost
-   #else
-   #define   MQTT_BROKER  "192.168.1.184"             // OK
-// #define   MQTT_BROKER  "test.mosquitto.org"        // OK, require empty USERNAME and PASSWORD
-// #define   MQTT_BROKER  "public.cloud.shiftr.io"    // OK, require non empty USERNAME and PASSWORD
-// #define   MQTT_BROKER  "broker.hivemq.com"         // Test topic conflict with wild card using
-   #endif // WIFI_ACCESSPOINT
+#define ADC_CHANNELS     2    // 2: shunt and diode // 1: only shunt (fix voltage diode)
+#define SPmax          950    // Sun's peak power [W/m2] at latitude 60 deg. north (summer time)
+#define ADC_REF       1800    // Calibration value: "adcValue.diff" at "SPmax"
 
 //-----------------------------------------------------------------------------------------
 
@@ -98,28 +84,9 @@ const char* password_AP = "ACCESSPOINT_WiFi_PASSWORD";
 //-----------------------------------------------------------------------------------------
 
 WiFiClient   wifiClient;
-MQTTClient   mqttClient;
 
 
-void messageReceived(String &topic, String &payload) {
-  // Note: Do not use the client in the callback to publish, subscribe or
-  // unsubscribe as it may cause deadlocks when other things arrive while
-  // sending and receiving acknowledgments. Instead, change a global variable,
-  // or push to a queue and handle it in the loop after calling `client.loop()`.
-
-  #if 0
-  Serial.println("incoming: " + topic + " - " + payload);
-  #else
-  // Note: Expect "payload" is printable ASCII text (not binary data)
-  Serial.print("Message received - topic: ");
-  Serial.println(topic.c_str());
-  Serial.print("Message received - data:  ");
-  Serial.println(payload.c_str());
-  #endif
-}
-
-
-void connect( int wifi_accesspoint, int mqtt_client )
+void connect( int wifi_accesspoint )
 {
   if ( ! wifi_accesspoint )
   {
@@ -129,37 +96,12 @@ void connect( int wifi_accesspoint, int mqtt_client )
       Serial.print(".");
       delay(1000);
     }
+    digitalWrite(LED, LED_ON);
     Serial.print("\nConnected  WiFi");
   }
-
-  if ( mqtt_client )
-  {
-    Serial.print("\nConnecting MQTT...");
-  //while (!mqttClient.connect(MQTT_CLIENT_ID)) {
-  //while (!mqttClient.connect(MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD)) {   // "public.cloud.shiftr.io"
-    while (!mqttClient.connect(MQTT_CLIENT_ID, "", "")) {                         // "test.mosquitto.org"
-      Serial.print(".");
-      delay(1000);
-    }
-    Serial.println("\nConnected  MQTT");
-
-    #if MQTT_SUBSCRIBE
-    mqttClient.subscribe(MQTT_TOPIC);
-  //mqttClient.unsubscribe(MQTT_TOPIC);
-    #endif // MQTT_SUBSCRIBE
-  }
-  digitalWrite(LED, LED_ON);
 }
 
 //-----------------------------------------------------------------------------------------
-
-typedef struct
-{
-    int     panel;
-    int     diode;
-    int     diff;
-}  adcValue_t;
-
 
 float       Iref   = 0.0270;   // Solar panel's measured "short circuit" current [A] at SPmax
 float       Rshunt = 82.0;     // Current shunt resistance [ohm]: Select value <= (2.5V / Iref)
@@ -272,16 +214,7 @@ void setup( void )
     setup_telnetServer();
     setup_ntpClient( WIFI_ACCESSPOINT );
     setup_ftpServer();
-
-    #if MQTT_CLIENT
-    // Connect to MQTT broker
-    // Note: Local domain names (e.g. "Computer.local" on OSX) are not supported
-    // by Arduino. You need to set the IP address directly.
-    mqttClient.begin(MQTT_BROKER, wifiClient);
-    mqttClient.onMessage(messageReceived);
-
-    connect(  WIFI_ACCESSPOINT, MQTT_CLIENT );
-    #endif // MQTT_CLIENT
+    setup_mqtt( WIFI_ACCESSPOINT, MQTT_CLIENT );
 
     #if 1
     // There is broblem with public servers like broker.hivemq.com
@@ -306,62 +239,5 @@ void loop( void )
     int32_t    now = millis();
 
     blink_led( now, WIFI_ACCESSPOINT );
-
-    // - - - - - - - - - - - - - - - - - - - - - - -
-    #if MQTT_CLIENT
-    
-    #define PERIOD  1000L  // [ms]
-
-    static int      counter  = 0;
-    static int32_t  sum      = 0;
-    static int32_t  previous = 0;
-           char     line[256];
-
-    mqttClient.loop();
-    delay(10);         // <- fixes some issues with WiFi stability
-
-    if ( !mqttClient.connected() ) {
-        connect( WIFI_ACCESSPOINT, MQTT_CLIENT );
-    }
-
-    // Publish MQTT message every 1 seconds (PERIOD)
-    if ( (int32_t)(now - previous) < PERIOD ) {
-        return;
-    }
-    previous += PERIOD;
-    counter  += 1;            // "seconds"
-
-    int adcData_diff    = 0;  // Filtered ADC [mV] value of shunt resistor
-    int solarIntensity  = 0;  // Solar's intensity [%]
-
-    if ( (adcValue.diff > 0) && (adcValue.panel > 200) ) {
-        adcData_diff    = adcValue.diff;
-        solarIntensity  = (100 * adcData_diff) / ADCref;
-    }
-    sum += solarIntensity;    // Overflow after few years
-
-    String topic      = MQTT_TOPIC;
-    float  cumulative = cumulative_sum( sum );
-
-    #if defined(ESP32S3)  ||  defined(CONFIG_IDF_TARGET_ESP32S3)
-    int mV = 0;
-    #else
-    int mV = analogReadMilliVolts( ADC_PANEL );  // Debug testing
-    #endif
-
-    // Produce Octave and GnuPlot compatible data row
-    #if 1
-    snprintf( line, sizeof(line), "%3d  %.3f  %6d  %4d  %4d  %4d  %4d\r\n",
-              solarIntensity, cumulative, counter, adcData_diff, adcValue.panel, adcValue.diode, adcValue.panel - mV );
-    #else
-    snprintf( line, sizeof(line), "%3d  %.3f  %6d  %4d\r\n", solarIntensity, cumulative, counter, adcData_diff );
-    #endif
-
-    mqttClient.publish( topic.c_str(), line, strlen(line) + 2 );  // Send also string terminating NULL character
-
-    Serial.print("Message published:        ");
-    Serial.print(line);
-
-    #endif // MQTT_CLIENT
-    // - - - - - - - - - - - - - - - - - - - - - - -
+    loop_mqtt( now, WIFI_ACCESSPOINT, MQTT_CLIENT, ADC_PANEL );
 }
