@@ -306,22 +306,10 @@ void setup( void )
 
 void loop( void )
 {
-    int32_t  now = millis();
+    int32_t    now = millis();
 
-    // - - - - - - - - - - - - - - - - - - - - - - -
-    #if WIFI_ACCESSPOINT
+    blink_led( now, WIFI_ACCESSPOINT );
 
-    #define BLINK   1000L //   [ms]
-    static int      ledstate = 0;
-    static int32_t  blink    = 0;
-
-    if ( (int32_t)(now - blink) >= BLINK ) {
-      blink    += BLINK;
-      ledstate ^= 1;
-      digitalWrite(LED, ledstate);    // Toggle the LED on/off
-    }
-
-    #endif // WIFI_ACCESSPOINT
     // - - - - - - - - - - - - - - - - - - - - - - -
     #if MQTT_CLIENT
     

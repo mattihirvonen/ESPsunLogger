@@ -102,3 +102,20 @@ void setup_ftpServer( void )
     if (ftpServer && *ftpServer)  Serial.println ("FTP server started");
     else                          Serial.println ("FTP server did not start");
 }
+
+
+void blink_led( int32_t now, int wifi_accesspoint )
+{
+    if ( wifi_accesspoint )
+    {
+        #define BLINK   1000L //   [ms]
+        static int      ledstate = 0;
+        static int32_t  blink    = 0;
+
+        if ( (int32_t)(now - blink) >= BLINK ) {
+            blink    += BLINK;
+            ledstate ^= 1;
+            digitalWrite( LED, ledstate );    // Toggle the LED on/off
+        }
+    }
+}
