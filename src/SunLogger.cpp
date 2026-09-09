@@ -272,6 +272,10 @@ void setup( void )
     digitalWrite(LED, LED_ON);
     #endif // WIFI_ACCESSPOINT
 
+    setup_telnetServer();
+    setup_ntpClient( WIFI_ACCESSPOINT );
+    setup_ftpServer();
+
     #if MQTT_CLIENT
     // Connect to MQTT broker
     // Note: Local domain names (e.g. "Computer.local" on OSX) are not supported
@@ -281,10 +285,6 @@ void setup( void )
 
     connect(  WIFI_ACCESSPOINT, MQTT_CLIENT );
     #endif // MQTT_CLIENT
-
-    setup_telnetServer();
-    setup_ntpClient( WIFI_ACCESSPOINT );
-    setup_ftpServer();
 
     #if 1
     // There is broblem with public servers like broker.hivemq.com

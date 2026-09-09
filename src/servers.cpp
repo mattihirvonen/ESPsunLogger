@@ -1,11 +1,10 @@
 
 #include <LittleFS.h>             // Or FFat.h or/and SD.h
 #include <threadSafeFS.h>         // Include thread-safe wrapper since LittleFS, FFat and SD file systems are not thread safe
-#include "serversConfig.h"         // Local config enable/disable telnet server's built in command set
+#include "serversConfig.h"        // Local config enable/disable telnet server's built in command set
 #include <telnetServer.h>
 #include <ntpClient.h>            // NTP client is needed only for time commands
 #include <ftpServer.h>
-
 #include "pinMap.h"               // LED, BUTTON, AIN0, AIN1, ...
 
 extern threadSafeFS::FS TSFS;
