@@ -1,6 +1,10 @@
 #ifndef TELNET_CONFIG_H
 #define TELNET_CONFIG_H
 
+// Choose your server's name - this is how Telnet server would introduce itself to the clients
+#define HOSTNAME  "esp32server"
+
+
 // Choose which built-in Telnet commands will be included
 
 #define TELNET_CLEAR_COMMAND    1   // 0=exclude, 1=include, clear is included by default

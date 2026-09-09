@@ -28,9 +28,6 @@
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-// Choose your server's name - this is how Telnet server would introduce itself to the clients
-#define  HOSTNAME  "esp32server"
-
 #include <LittleFS.h>             // Or FFat.h or/and SD.h
 #include <threadSafeFS.h>         // Include thread-safe wrapper since LittleFS, FFat and SD file systems are not thread safe
 #include "serversConfig.h"        // Function prototype for setup_telnet()
