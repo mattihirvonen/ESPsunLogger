@@ -40,4 +40,6 @@
                                         "\r\n      turn led off" \
                                         "\r\n      led  state"
 
+void setup_telnetServer( void );
+
 #endif //  TELNET_CONFIG_H
