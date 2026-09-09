@@ -22,8 +22,9 @@
 #include <string.h>
 #include <WiFi.h>
 #include <freertos/FreeRTOS.h>
-#include <MQTT.h>                 // MQTT
+#include <MQTT.h>
 #include "esp32lib.hpp"
+#include "pinMap.h"               // LED, BUTTON, AIN0, AIN1, ...
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -63,13 +64,18 @@ ftpServer_t    *ftpServer    = NULL;
 // - time=13:20, Udiff=1795, Upanel=2175 mV, ADC_REF=2200, intensity=81
 // - fix ADC_REF: 2200 * 81 / 99 = 1800
 
+#if defined(ESP32S3)  ||  defined(CONFIG_IDF_TARGET_ESP32S3)
+#define ADC_PANEL     AIN0
+#define ADC_DIODE     AIN1
+#else
+#define ADC_PANEL     AIN6    // GPIO pin: Analog ADC1_CH6 - ESP32 DEVKIT V1
+#define ADC_DIODE     AIN7    // GPIO pin: Analog ADC1_CH7 - ESP32 DEVKIT V1
+#endif
+
+
 #define ADC_CHANNELS   2      // 2: shunt and diode // 1: only shunt (fix voltage diode)
-#define ADC_PANEL     34      // GPIO pin: Analog ADC1_CH6 - ESP32 DEVKIT V1
-#define ADC_DIODE     35      // GPIO pin: Analog ADC1_CH7 - ESP32 DEVKIT V1
 #define SPmax        950      // Sun's peak power [W/m2] at latitude 60 deg. north (summer time)
 #define ADC_REF     1800      // Calibration value: "adcValue.diff" at "SPmax"
-#define LED            2      // GPIO2 (blue LED on devkit)
-#define BUTTON         0      // GPIO0 (boot button on devkit)
 
 #define MQTT_CLIENT_ID  "aurinkopaneeli"
 #define MQTT_USERNAME   "public"              // public.cloud.shiftr.io
@@ -128,7 +134,7 @@ void connect( int wifi_accesspoint, int mqtt_client )
   {
     Serial.print("\nChecking   WiFi...");
     while (WiFi.status() != WL_CONNECTED) {
-      digitalWrite(LED, LOW);  // Turn the LED off
+      digitalWrite(LED, LED_OFF);
       Serial.print(".");
       delay(1000);
     }
@@ -151,7 +157,7 @@ void connect( int wifi_accesspoint, int mqtt_client )
   //mqttClient.unsubscribe(MQTT_TOPIC);
     #endif // MQTT_SUBSCRIBE
   }
-  digitalWrite(LED, HIGH);  // Turn the LED on
+  digitalWrite(LED, LED_ON);
 }
 
 //-----------------------------------------------------------------------------------------
@@ -229,12 +235,18 @@ void taskMeasure( void UNUSED *pvParameters )
 
         // ADC result offset and gain fixes required with raw uncalibrated ADC data
     //  adcRaw   = analogRead( ADC_PANEL );
+        #if defined(ESP32S3)  ||  defined(CONFIG_IDF_TARGET_ESP32S3)
+        mV_panel = 0;
+        mV_diode = 0;
+        #else // ESP32S3
         mV_panel = analogReadMilliVolts( ADC_PANEL );      // Factory calibrated !!!
         #if  ADC_CHANNELS > 1
         mV_diode = analogReadMilliVolts( ADC_DIODE );      // Factory calibrated !!!
         #else
         mV_diode = DIODE_mV;                               // Single channel ADC measurement
         #endif
+        #endif // ESP32S3
+
         // Filter measurement results
         adcValue.panel = floatingAverage( &sum_panel, mV_panel, Ntaps );
         adcValue.diode = floatingAverage( &sum_diode, mV_diode, Ntaps );
@@ -248,9 +260,8 @@ void taskMeasure( void UNUSED *pvParameters )
 // Provide callback function that would handle user-defined commands
 String telnetCommandHandlerCallback (int argc, char *argv [], telnetServer_t::telnetConnection_t *tcn)
 {
-    #ifndef LED_BUILTIN
-    #define LED_BUILTIN  2
-    #endif
+    #undef  LED_BUILTIN
+    #define LED_BUILTIN  LED
 
     // Must be reentrant !!!
 
@@ -260,10 +271,10 @@ String telnetCommandHandlerCallback (int argc, char *argv [], telnetServer_t::te
 
     // Short-running functions should return the text the Telnet server will send to the client as a response to the command
     if (argv0is ("turn") && argv1is ("led") && argv2is ("on")) {
-            digitalWrite (LED_BUILTIN, HIGH);
+            digitalWrite (LED_BUILTIN, LED_ON);
             return "Led is on";
     } else if (argv0is ("turn") && argv1is ("led") && argv2is ("off")) {
-            digitalWrite (LED_BUILTIN, LOW);
+            digitalWrite (LED_BUILTIN, LED_OFF);
             return "Led is off";
     }
 
@@ -297,8 +308,8 @@ void setup( void )
     Serial.println("\n\nStart...");
 
     pinMode(BUTTON, INPUT_PULLUP);  // Enable internal pull-up resistor
-    pinMode(LED, OUTPUT);           // Set GPIO2 (devkit's blue LED) as an output pin
-    digitalWrite(LED, LOW);         // Turn the LED off
+    pinMode(LED, OUTPUT);           // Set user LED GPIO pin as output
+    digitalWrite(LED, LED_OFF);
 
     // Start LittleFS (or FFat or SD)
     LittleFS.begin (true);
@@ -309,7 +320,7 @@ void setup( void )
     #else
     // Connect to Wi-Fi router
     setup_wifi( ssid, password );
-    digitalWrite(LED, HIGH);        // Turn the LED on
+    digitalWrite(LED, LED_ON);
     #endif // WIFI_ACCESSPOINT
 
     #if MQTT_CLIENT
@@ -426,7 +437,11 @@ void loop( void )
     String topic      = MQTT_TOPIC;
     float  cumulative = cumulative_sum( sum );
 
+    #if defined(ESP32S3)  ||  defined(CONFIG_IDF_TARGET_ESP32S3)
+    int mV = 0;
+    #else
     int mV = analogReadMilliVolts( ADC_PANEL );  // Debug testing
+    #endif
 
     // Produce Octave and GnuPlot compatible data row
     #if 1
