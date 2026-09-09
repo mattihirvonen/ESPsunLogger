@@ -33,15 +33,11 @@
 
 #include <LittleFS.h>             // Or FFat.h or/and SD.h
 #include <threadSafeFS.h>         // Include thread-safe wrapper since LittleFS, FFat and SD file systems are not thread safe
-#include <ntpClient.h>            // NTP client is needed only for time commands
-#include "telnetConfig.h"         // Function prototype for setup_telnet()
-#include <ftpServer.h>
+#include "serversConfig.h"        // Function prototype for setup_telnet()
 
 // Crete thread-safe wrapper arround LittleFS (or FFat or SD)
 using  File = threadSafeFS::File; // Use thread-safe wrapper for all file operations form now on in your code
 threadSafeFS::FS TSFS (LittleFS);
-
-ftpServer_t *ftpServer = NULL;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -287,25 +283,8 @@ void setup( void )
     #endif // MQTT_CLIENT
 
     setup_telnetServer();
-
-    #if WIFI_ACCESSPOINT == 0
-    // Setting the time is only important for time commands
-    // Select another (POSIX) time zones: https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
-    setenv ("TZ", "CET-2CEST,M3.5.0,M10.5.0/3", 1);
-    ntpClient_t ntpClient ("1.si.pool.ntp.org", "2.si.pool.ntp.org", "3.si.pool.ntp.org");
-    ntpClient.syncTime ();
-    #endif
-
-    // Create FTP server instance that would use thread-safe wrapper arround LittleFS (or FFat or SD)
-    ftpServer = new (std::nothrow) ftpServer_t (TSFS);  // optional arguments:
-                                                        //    Cstring<255> (*getUserHomeDirectory) (const Cstring<64>& userName, const Cstring<64>& password) = NULL
-                                                        //    int serverPort = 21
-                                                        //    bool (*firewallCallback) (char *clientIP, char *serverIP) = NULL
-                                                        //    bool runListenerInItsOwnTask = true
-
-    // Check if FTP server instance is created && FTP server is running
-    if (ftpServer && *ftpServer)  Serial.println ("FTP server started");
-    else                          Serial.println ("FTP server did not start");
+    setup_ntpClient( WIFI_ACCESSPOINT );
+    setup_ftpServer();
 
     #if 1
     // There is broblem with public servers like broker.hivemq.com
