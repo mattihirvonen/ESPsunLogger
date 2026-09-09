@@ -41,5 +41,7 @@
                                         "\r\n      led  state"
 
 void setup_telnetServer( void );
+void setup_ntpClient( int wifi_accesspoint );
+void setup_ftpServer( void );
 
 #endif //  TELNET_CONFIG_H

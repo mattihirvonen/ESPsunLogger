@@ -1,13 +1,17 @@
 
 #include <LittleFS.h>             // Or FFat.h or/and SD.h
 #include <threadSafeFS.h>         // Include thread-safe wrapper since LittleFS, FFat and SD file systems are not thread safe
-#include "telnetConfig.h"         // Local config enable/disable telnet server's built in command set
+#include "serversConfig.h"         // Local config enable/disable telnet server's built in command set
 #include <telnetServer.h>
+#include <ntpClient.h>            // NTP client is needed only for time commands
+#include <ftpServer.h>
+
 #include "pinMap.h"               // LED, BUTTON, AIN0, AIN1, ...
 
 extern threadSafeFS::FS TSFS;
 
-telnetServer_t *telnetServer = NULL;
+telnetServer_t  *telnetServer = NULL;
+ftpServer_t     *ftpServer    = NULL;
 
 
 // Provide callback function that would handle user-defined commands
@@ -70,4 +74,32 @@ void setup_telnetServer( void )
     // Check if Telnet server instance is created && Telnet server is running
     if (telnetServer && *telnetServer)  Serial.println ("Telnet server started");
     else                                Serial.println ("Telnet server did not start");
+}
+
+
+void setup_ntpClient( int wifi_accesspoint )
+{
+    if ( ! wifi_accesspoint )
+    {
+        // Setting the time is only important for time commands
+        // Select another (POSIX) time zones: https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
+        setenv ("TZ", "CET-2CEST,M3.5.0,M10.5.0/3", 1);
+        ntpClient_t ntpClient ("1.si.pool.ntp.org", "2.si.pool.ntp.org", "3.si.pool.ntp.org");
+        ntpClient.syncTime ();
+    }
+}
+
+
+void setup_ftpServer( void )
+{
+    // Create FTP server instance that would use thread-safe wrapper arround LittleFS (or FFat or SD)
+    ftpServer = new (std::nothrow) ftpServer_t (TSFS);  // optional arguments:
+                                                        //    Cstring<255> (*getUserHomeDirectory) (const Cstring<64>& userName, const Cstring<64>& password) = NULL
+                                                        //    int serverPort = 21
+                                                        //    bool (*firewallCallback) (char *clientIP, char *serverIP) = NULL
+                                                        //    bool runListenerInItsOwnTask = true
+
+    // Check if FTP server instance is created && FTP server is running
+    if (ftpServer && *ftpServer)  Serial.println ("FTP server started");
+    else                          Serial.println ("FTP server did not start");
 }
