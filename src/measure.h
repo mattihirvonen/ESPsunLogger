@@ -15,6 +15,16 @@ typedef struct
     int     debug;     // [mV]
 }  adcValue_t;
 
-void taskMeasure( void UNUSED *pvParameters );
+
+typedef struct
+{
+  uint16_t   mV;
+  int16_t    mA;
+} loggerData_t;
+
+
+void     taskMeasure( void UNUSED *pvParameters );
+void     measure_start( uint32_t seconds );
+uint32_t measure_period( uint32_t ms );
 
 #endif // #define MEASURE_H

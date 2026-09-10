@@ -6,6 +6,11 @@
 #include "pinMap.h"
 #include "measure.h"
 
+#define TASK_PERIOD 50       // in tick(s) [ms]
+#define LOGSIZE     10000
+
+static  TickType_t  xTaskPeriod = pdMS_TO_TICKS( TASK_PERIOD );
+
 //-----------------------------------------------------------------------------------------
 
 // Calibration info:
@@ -32,15 +37,23 @@
 
 //-----------------------------------------------------------------------------------------
 
-float       Iref   = 0.0270;   // Solar panel's measured "short circuit" current [A] at SPmax
-float       Rshunt = 82.0;     // Current shunt resistance [ohm]: Select value <= (2.5V / Iref)
+float         Iref   = 0.0270;      // Solar panel's measured "short circuit" current [A] at SPmax
+float         Rshunt = 82.0;        // Current shunt resistance [ohm]: Select value <= (2.5V / Iref)
 //
-int         ADCref = ADC_REF;  // Calibration value: Measured "adcValue.diff" [mV] at SPmax (2100)
-int         Ntaps  = 20;       // Filter coefficient
+int           ADCref = ADC_REF;     // Calibration value: Measured "adcValue.diff" [mV] at SPmax (2100)
+int           Ntaps  = 20;          // Filter coefficient
 //
-adcValue_t  adcValue;          // Work space variable (filtered ADC data)
+adcValue_t    adcValue;             // Work space variable (filtered ADC data)
+//
+int           loggerRun = 0;
+uint32_t      loggerSamples;
+loggerData_t  loggerData[LOGSIZE];
 
 //-----------------------------------------------------------------------------------------
+
+static void measure_sun( void );
+static void measure_logger( void );
+
 
 // Dummy IIR style filtering
 static int floatingAverage( int32_t *sum, int x, int N )
@@ -71,47 +84,102 @@ int adcLinearize( int mV )
 
 void taskMeasure( void UNUSED *pvParameters )
 {
-    #define TASK_PERIOD 50  // in tick(s) [ms]
-
-    static TickType_t  xLastWakeTime;
-    static int32_t     sum_panel = 0, sum_diode = 0, sum_diff = 0;
-           int          mV_panel,      mV_diode,      mV_diff;
-    //     int          adcRaw;
+    static  TickType_t  xLastWakeTime;
 
     pinMode(ADC_DIODE, INPUT);
     pinMode(ADC_PANEL, INPUT);
 
-    if ( ! xLastWakeTime ) {
-           xLastWakeTime = xTaskGetTickCount();  // Initializetion: Get current uptime
-    }
+    // Initializetion: Get current uptime
+    xLastWakeTime = xTaskGetTickCount();
 
     while ( 1 ) // Loop for ever
     {
-        #define DIODE_mV  265   // BAT85 typical: 250 mV / 0.3 mA - 300 mV / 1 mA
-
         // Wait for the next cycle.
-        BaseType_t UNUSED  xWasDelayed = xTaskDelayUntil( &xLastWakeTime, TASK_PERIOD );
+        BaseType_t UNUSED  xWasDelayed = xTaskDelayUntil( &xLastWakeTime, xTaskPeriod );
 
-        // ADC result offset and gain fixes required with raw uncalibrated ADC data
-        #if defined(ESP32S3)  ||  defined(CONFIG_IDF_TARGET_ESP32S3)
-        mV_panel = 0;                                         // ESP32S3 fail/crash with
-        mV_diode = 0;                                         // analogRead() and
-    //  mV_panel = analogRead( ADC_PANEL );                   // analogReadMilliVolts()
-    //  mV_diode = analogRead( ADC_DIODE );                   // functions
-        #else // ESP32S3
-        mV_panel       = analogReadMilliVolts( ADC_PANEL );   // Factory calibrated !!!
-        #if  ADC_CHANNELS > 1
-        mV_diode       = analogReadMilliVolts( ADC_DIODE );   // Factory calibrated !!!
-        adcValue.debug = analogReadMilliVolts( ADC_PANEL );   // Debug testing...
-        #else
-        mV_diode       = DIODE_mV;                            // Single channel ADC measurement
-        adcValue.debug = DIODE_mV;
-        #endif
-        #endif // ESP32S3
-
-        // Filter measurement results
-        adcValue.panel = floatingAverage( &sum_panel, mV_panel, Ntaps );
-        adcValue.diode = floatingAverage( &sum_diode, mV_diode, Ntaps );
-        adcValue.diff  = floatingAverage( &sum_diff,  adcValue.panel - adcValue.diode, Ntaps );
+        measure_sun();
+        measure_logger();
     }
+}
+
+//-----------------------------------------------------------------------------------------
+
+static void measure_sun( void )
+{
+    #define DIODE_mV  265   // BAT85 typical: 250 mV / 0.3 mA - 300 mV / 1 mA
+
+    static int32_t     sum_panel = 0, sum_diode = 0, sum_diff = 0;
+           int          mV_panel,      mV_diode;
+        // int          mV_diff;
+
+    // ADC result offset and gain fixes required with raw uncalibrated ADC data
+    #if defined(ESP32S3)  ||  defined(CONFIG_IDF_TARGET_ESP32S3)
+    mV_panel = 0;                                         // ESP32S3 fail/crash with
+    mV_diode = 0;                                         // analogRead() and
+//  mV_panel = analogRead( ADC_PANEL );                   // analogReadMilliVolts()
+//  mV_diode = analogRead( ADC_DIODE );                   // functions
+    #else // ESP32S3
+    mV_panel       = analogReadMilliVolts( ADC_PANEL );   // Factory calibrated !!!
+    #if  ADC_CHANNELS > 1
+    mV_diode       = analogReadMilliVolts( ADC_DIODE );   // Factory calibrated !!!
+    adcValue.debug = analogReadMilliVolts( ADC_PANEL );   // Debug testing...
+    #else
+    mV_diode       = DIODE_mV;                            // Single channel ADC measurement
+    adcValue.debug = DIODE_mV;
+    #endif
+    #endif // ESP32S3
+
+    // Filter measurement results
+    adcValue.panel = floatingAverage( &sum_panel, mV_panel, Ntaps );
+    adcValue.diode = floatingAverage( &sum_diode, mV_diode, Ntaps );
+    adcValue.diff  = floatingAverage( &sum_diff,  adcValue.panel - adcValue.diode, Ntaps );
+}
+
+//-----------------------------------------------------------------------------------------
+
+uint32_t measure_period( uint32_t ms )
+{
+    if ( ms ) {
+        xTaskPeriod = pdMS_TO_TICKS( ms );
+    }
+    else {
+        ms = pdTICKS_TO_MS( xTaskPeriod );        
+    }
+    Serial.print("\r\nMeasure period ");
+    Serial.println(ms);
+    return ms;
+}
+
+
+void measure_start( uint32_t seconds )
+{
+    uint32_t samples = seconds * 1000 / xTaskPeriod;
+
+    if ( samples > LOGSIZE ) {
+         samples = LOGSIZE;
+    }
+    loggerSamples = samples;
+    loggerRun     = 1;
+    Serial.println("\r\nMeasure start");
+    return;
+}
+
+
+static void measure_logger( void )
+{
+    static uint32_t ix = 0;
+
+    if ( ! loggerRun ) {
+        return;
+    }
+    if ( ix >= loggerSamples ) {
+        loggerRun = 0;
+        Serial.println("\r\nMeasure stop");
+        return;
+    }
+    #if 1
+    loggerData[ix].mV = 1 + ix;
+    loggerData[ix].mA = 1 + ix * 10;
+    #endif
+    ix += 1;    
 }

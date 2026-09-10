@@ -42,7 +42,11 @@
 #define USER_DEFINED_TELNET_HELP_TEXT   "\r\n  LED commands:" \
                                         "\r\n      turn led on" \
                                         "\r\n      turn led off" \
-                                        "\r\n      led  state"
+                                        "\r\n      led  state" \
+                                        "\r\n  LOG commands:" \
+                                        "\r\n      log period [ms]" \
+                                        "\r\n      log start  [seconds]" \
+                                        "\r\n      log dump"
 
 void setup_telnetServer( void );
 void setup_ntpClient( int wifi_accesspoint );

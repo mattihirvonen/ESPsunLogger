@@ -6,12 +6,15 @@
 #include <ntpClient.h>            // NTP client is needed only for time commands
 #include <ftpServer.h>
 #include "pinMap.h"               // LED, BUTTON, AIN0, AIN1, ...
+#include "measure.h"              // measure_start()
 
 extern threadSafeFS::FS TSFS;
 
 telnetServer_t  *telnetServer = NULL;
 ftpServer_t     *ftpServer    = NULL;
 
+extern uint32_t     loggerSamples;
+extern loggerData_t loggerData[];
 
 // Provide callback function that would handle user-defined commands
 String telnetCommandHandlerCallback (int argc, char *argv [], telnetServer_t::telnetConnection_t *tcn)
@@ -44,6 +47,48 @@ String telnetCommandHandlerCallback (int argc, char *argv [], telnetServer_t::te
                     return "\r";
                 }
                 delay (250); 
+
+                if (tcn->peekChar ()) {
+                    tcn->recvChar ();
+                    return "\r"; // break the loop and return something different than "" to let the telnet server function know that the command has been processed
+                }
+            }
+            return "\r"; // return something different than "" to let the telnet server function know that the command has been processed
+    }
+    else if (argv0is ("log") && argv1is ("period")) {
+        char    buf [80];
+        uint32_t ms = 0;
+        if ( argc >= 3 ) {
+            ms = atoi( argv[2] );
+            if ( (ms < 10) || (1000 < ms) ) {
+                ms = 50;
+            }
+            measure_period(ms);
+        }
+        else {
+            ms = measure_period( 0 );
+            snprintf(buf, sizeof(buf), "%d ms", ms);
+            tcn->sendString (buf);
+        }
+        return "\r";
+    }
+    else if (argv0is ("log") && argv1is ("start")) {
+        uint32_t seconds = 10;
+        if ( argc >= 3 ) {
+            seconds = atoi( argv[2] );
+        }
+        measure_start( seconds );
+        return "\r";
+    }
+    else if (argv0is ("log") && argv1is ("dump")) {
+            for (int i = 0; i < loggerSamples; i++)
+            {
+                char buf [80];
+                sprintf (buf, "ix=%d %d %d\r\n", i, loggerData[i].mV, loggerData[i].mA);
+                if (tcn->sendString (buf) <= 0) {
+                    return "\r";
+                }
+                delay (20); 
 
                 if (tcn->peekChar ()) {
                     tcn->recvChar ();
