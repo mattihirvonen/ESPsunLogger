@@ -25,7 +25,15 @@ extern  WiFiClient   wifiClient;
 
 
 void  connect( int wifi_accesspoint );
-float cumulative_sum( int32_t sum );
+
+
+// Return value: 1.0 per each 100% of sun intensity hour
+static float cumulative_sum( int32_t sum )
+{
+    float value = sum;
+
+    return value / (100.0 * 3600.0);
+}
 
 
 static void connect_mqtt( int wifi_accesspoint, int mqtt_client )
@@ -94,7 +102,7 @@ void setup_mqtt( int wifi_accesspoint, int mqtt_client )
 }
 
 
-void loop_mqtt( int32_t now, int wifi_accesspoint, int mqtt_client, int adc_panel )
+void loop_mqtt( int32_t now, int wifi_accesspoint, int mqtt_client )
 {
     #define PERIOD  1000L  // [ms]
 
@@ -132,16 +140,11 @@ void loop_mqtt( int32_t now, int wifi_accesspoint, int mqtt_client, int adc_pane
     String topic      = MQTT_TOPIC;
     float  cumulative = cumulative_sum( sum );
 
-    #if defined(ESP32S3)  ||  defined(CONFIG_IDF_TARGET_ESP32S3)
-    int mV = 0;
-    #else
-    int mV = analogReadMilliVolts( adc_panel );  // Debug testing
-    #endif
-
     // Produce Octave and GnuPlot compatible data row
     #if 1
     snprintf( line, sizeof(line), "%3d  %.3f  %6d  %4d  %4d  %4d  %4d\r\n",
-              solarIntensity, cumulative, counter, adcData_diff, adcValue.panel, adcValue.diode, adcValue.panel - mV );
+              solarIntensity, cumulative, counter, adcData_diff, adcValue.panel, adcValue.diode,
+              adcValue.panel - adcValue.debug );
     #else
     snprintf( line, sizeof(line), "%3d  %.3f  %6d  %4d\r\n", solarIntensity, cumulative, counter, adcData_diff );
     #endif
