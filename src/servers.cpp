@@ -130,6 +130,14 @@ String telnetCommandHandlerCallback (int argc, char *argv [], telnetServer_t::te
 
 //-----------------------------------------------------------------------------------------------------------------------------
 
+void setup_servers( int wifi_accesspoint )
+{
+    setup_telnetServer();
+    setup_ntpClient( wifi_accesspoint );
+    setup_ftpServer();
+}
+
+
 void setup_telnetServer( void )
 {
     // Create Telnet server instance that would use thread-safe wrapper arround LittleFS (or FFat or SD)
@@ -172,21 +180,4 @@ void setup_ftpServer( void )
     // Check if FTP server instance is created && FTP server is running
     if (ftpServer && *ftpServer)  Serial.println ("FTP server started");
     else                          Serial.println ("FTP server did not start");
-}
-
-
-void blink_led( int32_t now, int wifi_accesspoint )
-{
-    if ( wifi_accesspoint )
-    {
-        #define BLINK   1000L //   [ms]
-        static int      ledstate = 0;
-        static int32_t  blink    = 0;
-
-        if ( (int32_t)(now - blink) >= BLINK ) {
-            blink    += BLINK;
-            ledstate ^= 1;
-            digitalWrite( LED, ledstate );    // Toggle the LED on/off
-        }
-    }
 }

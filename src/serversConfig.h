@@ -51,9 +51,9 @@
                                         "\r\n      ina read  register" \
                                         "\r\n      ina write register value"
 
+void setup_servers( int wifi_accesspoint );
 void setup_telnetServer( void );
 void setup_ntpClient( int wifi_accesspoint );
 void setup_ftpServer( void );
-void blink_led( int32_t now, int wifi_accesspoint );
 
 #endif //  TELNET_CONFIG_H

@@ -24,15 +24,28 @@ extern  WiFiClient   wifiClient;
         MQTTClient   mqttClient;
 
 
-void  connect( int wifi_accesspoint );
-
-
 // Return value: 1.0 per each 100% of sun intensity hour
 static float cumulative_sum( int32_t sum )
 {
     float value = sum;
 
     return value / (100.0 * 3600.0);
+}
+
+
+static void connect( int wifi_accesspoint )
+{
+  if ( ! wifi_accesspoint )
+  {
+    Serial.print("\nChecking   WiFi...");
+    while (WiFi.status() != WL_CONNECTED) {
+      digitalWrite(LED, LED_OFF);
+      Serial.print(".");
+      delay(1000);
+    }
+    digitalWrite(LED, LED_ON);
+    Serial.print("\nConnected  WiFi");
+  }
 }
 
 

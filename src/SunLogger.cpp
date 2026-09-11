@@ -63,19 +63,30 @@ const char* password_AP = "ACCESSPOINT_WiFi_PASSWORD";
 WiFiClient  wifiClient;
 
 
-void connect( int wifi_accesspoint )
+// User LED indicate WiFi status
+void blink_led( int32_t now, int wifi_accesspoint )
 {
-  if ( ! wifi_accesspoint )
-  {
-    Serial.print("\nChecking   WiFi...");
-    while (WiFi.status() != WL_CONNECTED) {
-      digitalWrite(LED, LED_OFF);
-      Serial.print(".");
-      delay(1000);
+    #define BLINK    1000L   // [ms]
+    static  int32_t  blink = 0;
+
+    if ( (int32_t)(now - blink) >= BLINK ) {
+        blink += BLINK;
+
+        if ( wifi_accesspoint ) {
+            static int ledstate = 0;
+
+            ledstate ^= 1;
+            digitalWrite( LED, ledstate );  // Toggle the LED on/off
+        }
+        else {
+            if  ( WiFi.status() == WL_CONNECTED ) { 
+                digitalWrite(LED, LED_ON);
+            }
+            else {
+                digitalWrite(LED, LED_OFF);
+            }
+        }
     }
-    digitalWrite(LED, LED_ON);
-    Serial.print("\nConnected  WiFi");
-  }
 }
 
 //-----------------------------------------------------------------------------------------
@@ -102,12 +113,9 @@ void setup( void )
     #else
     // Connect to Wi-Fi router
     setup_wifi( ssid, password );
-    digitalWrite(LED, LED_ON);
     #endif // WIFI_ACCESSPOINT
 
-    setup_telnetServer();
-    setup_ntpClient( WIFI_ACCESSPOINT );
-    setup_ftpServer();
+    setup_servers( WIFI_ACCESSPOINT );
     setup_mqtt( WIFI_ACCESSPOINT, MQTT_CLIENT );
 
     #if 1

@@ -55,7 +55,7 @@ loggerData_t  loggerData[LOGSIZE];
 
 //-----------------------------------------------------------------------------------------
 
-static void measure_sun( void );
+static void measure_solar( void );
 static void measure_logger( void );
 
 
@@ -109,14 +109,16 @@ void taskMeasure( void UNUSED *pvParameters )
         // Wait for the next cycle.
         BaseType_t UNUSED  xWasDelayed = xTaskDelayUntil( &xLastWakeTime, xTaskPeriod );
 
-        measure_sun();
+        measure_solar();
         measure_logger();
     }
 }
 
 //-----------------------------------------------------------------------------------------
 
-static void measure_sun( void )
+// Calculate continuous floating average of small solar cell measured intensity.
+// Work only using "NodeMCU" module (not ESP32S3 module, something fails),
+static void measure_solar( void )
 {
     #define DIODE_mV  265   // BAT85 typical: 250 mV / 0.3 mA - 300 mV / 1 mA
 
@@ -134,11 +136,10 @@ static void measure_sun( void )
     mV_panel       = analogReadMilliVolts( ADC_PANEL );   // Factory calibrated !!!
     #if  ADC_CHANNELS > 1
     mV_diode       = analogReadMilliVolts( ADC_DIODE );   // Factory calibrated !!!
-    adcValue.debug = analogReadMilliVolts( ADC_PANEL );   // Debug testing...
-    #else
+    #else  // ADC_CHANNELS > 1
     mV_diode       = DIODE_mV;                            // Single channel ADC measurement
-    adcValue.debug = DIODE_mV;
-    #endif
+    #endif // ADC_CHANNELS > 1
+    adcValue.debug = analogReadMilliVolts( ADC_PANEL );   // Debug testing...
     #endif // ESP32S3
 
     // Filter measurement results
@@ -148,7 +149,9 @@ static void measure_sun( void )
 }
 
 //-----------------------------------------------------------------------------------------
+// Logger functions to measure voltage and current using INA219 or INA226
 
+// Set logging sample rate to "ms"
 uint32_t measure_period( uint32_t ms )
 {
     if ( ms ) {
@@ -163,6 +166,7 @@ uint32_t measure_period( uint32_t ms )
 }
 
 
+// Start logging for "seconds"
 void measure_start( uint32_t seconds )
 {
     uint32_t samples = seconds * 1000 / xTaskPeriod;
@@ -177,6 +181,7 @@ void measure_start( uint32_t seconds )
 }
 
 
+// Logger's "work horse" to collect data into "loggerData[]"
 static void measure_logger( void )
 {
     static uint32_t ix = 0;
