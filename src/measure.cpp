@@ -5,11 +5,15 @@
 
 #include "pinMap.h"
 #include "measure.h"
+#include "INA219.h"
 
 #define TASK_PERIOD 50       // in tick(s) [ms]
 #define LOGSIZE     10000
 
 static  TickType_t  xTaskPeriod = pdMS_TO_TICKS( TASK_PERIOD );
+
+// Public object(s) for telnet and other source code modules
+INA219  INA( INA219_ADDRESS );
 
 //-----------------------------------------------------------------------------------------
 
@@ -86,8 +90,16 @@ void taskMeasure( void UNUSED *pvParameters )
 {
     static  TickType_t  xLastWakeTime;
 
-    pinMode(ADC_DIODE, INPUT);
-    pinMode(ADC_PANEL, INPUT);
+    pinMode( ADC_DIODE, INPUT );
+    pinMode( ADC_PANEL, INPUT );
+
+    if ( Wire.begin() )  { Serial.println("I2C initialization ok");                        }
+    else                 { Serial.println("I2C initialization fail");                      }
+    if ( INA.begin()  )  { Serial.println("I2C connect to INA ok");                        }
+    else                 { Serial.println("Could not I2C connect to INA. Fix and Reboot"); }
+
+    // Set INA219 chip mode continuous 16 samples averaging (+-320 mV)
+    INA.reset();
 
     // Initializetion: Get current uptime
     xLastWakeTime = xTaskGetTickCount();
@@ -169,6 +181,11 @@ static void measure_logger( void )
 {
     static uint32_t ix = 0;
 
+    if ( ! INA.isConnected() ) {
+        loggerRun = 0;
+        Serial.println("\r\nError: INA is not connected!");
+        return;
+    }
     if ( ! loggerRun ) {
         return;
     }
@@ -177,9 +194,14 @@ static void measure_logger( void )
         Serial.println("\r\nMeasure stop");
         return;
     }
-    #if 1
-    loggerData[ix].mV = 1 + ix;
-    loggerData[ix].mA = 1 + ix * 10;
-    #endif
+    int offset = -10;      // [uV]
+    int Rshunt = 100;      // [mOhm]
+
+    int uV = INA.shunt_uV() - offset;
+    int mA = uV / Rshunt;
+    int mV = INA.bus_mV();
+
+    loggerData[ix].mV = mV;
+    loggerData[ix].mA = mA;
     ix += 1;    
 }

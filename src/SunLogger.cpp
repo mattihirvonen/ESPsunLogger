@@ -80,6 +80,9 @@ void connect( int wifi_accesspoint )
 
 //-----------------------------------------------------------------------------------------
 
+#define TASK_STACK_SIZE  2048   // Words (not bytes), 1024 is not enough for "Wire"
+#define TASK_PRIORITY    2      // Task priority (1 = lowest)
+
 void setup( void )
 {
     Serial.begin( 115200 );
@@ -111,12 +114,12 @@ void setup( void )
     // There is broblem with public servers like broker.hivemq.com
     // Testing MQTT with/without strict timing task's CPU load
     xTaskCreate(
-      taskMeasure,    // function name
-      "Measure",      // task name (for debugging)
-      1024,           // stack size in words (not bytes)
-      NULL,           // parameters to pass
-      2,              // priority (1 = lowest)
-      NULL            // task handle (optional)
+      taskMeasure,      // function name
+      "Measure",        // task name (for debugging)
+      TASK_STACK_SIZE,  // stack size in words (not bytes)
+      NULL,             // parameters to pass
+      TASK_PRIORITY,    // priority (1 = lowest)
+      NULL              // task handle (optional)
     );
     #endif
 }

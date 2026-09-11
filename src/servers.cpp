@@ -7,6 +7,7 @@
 #include <ftpServer.h>
 #include "pinMap.h"               // LED, BUTTON, AIN0, AIN1, ...
 #include "measure.h"              // measure_start()
+#include "INA219.h"
 
 extern threadSafeFS::FS TSFS;
 
@@ -15,6 +16,8 @@ ftpServer_t     *ftpServer    = NULL;
 
 extern uint32_t     loggerSamples;
 extern loggerData_t loggerData[];
+extern INA219       INA();
+
 
 // Provide callback function that would handle user-defined commands
 String telnetCommandHandlerCallback (int argc, char *argv [], telnetServer_t::telnetConnection_t *tcn)
@@ -80,11 +83,15 @@ String telnetCommandHandlerCallback (int argc, char *argv [], telnetServer_t::te
         measure_start( seconds );
         return "\r";
     }
-    else if (argv0is ("log") && argv1is ("dump")) {
+    else if (argv0is ("log") && argv1is ("print")) {
+            int  period_ms = measure_period( 0 );
             for (int i = 0; i < loggerSamples; i++)
             {
-                char buf [80];
-                sprintf (buf, "ix=%d %d %d\r\n", i, loggerData[i].mV, loggerData[i].mA);
+                char  buf [80];
+                float time_s  = (period_ms * i)  / 1000.0;
+                float voltage = loggerData[i].mV / 1000.0;
+                float current = loggerData[i].mA / 1000.0;
+                snprintf (buf, sizeof(buf), "%.3f %.3f %.3f\r\n", time_s, voltage, current);
                 if (tcn->sendString (buf) <= 0) {
                     return "\r";
                 }
@@ -95,8 +102,27 @@ String telnetCommandHandlerCallback (int argc, char *argv [], telnetServer_t::te
                     return "\r"; // break the loop and return something different than "" to let the telnet server function know that the command has been processed
                 }
             }
-            return "\r"; // return something different than "" to let the telnet server function know that the command has been processed
+            return "\r"; // return something different than empty string "" to let the telnet server function know that the command has been processed
     }
+    /*
+    else if (argv0is ("ina") && argv1is ("read")) {
+        char buf[32];
+        if ( argc < 3 ) return "";
+        int reg = atoi( argv[2] );
+        int value = INA.reg( 1, reg );
+        snprintf(buf, sizeof(buf), "%d", value);
+        if (tcn->sendString (buf) <= 0) {
+            return "\r";
+        }
+    }
+    else if (argv0is ("ina") && argv1is ("write")) {
+        if ( argc < 4 ) return "";
+        uint8_t reg   = atoi( argv[2] );
+        int16_t value = atoi( argv[3] );
+        INA.reg( 2, reg, value );
+        return " ";
+    }
+    */
 
     // Unhandeled - let the Telnet server try to handle the command itself
     return "";

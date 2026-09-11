@@ -45,8 +45,11 @@
                                         "\r\n      led  state" \
                                         "\r\n  LOG commands:" \
                                         "\r\n      log period [ms]" \
+                                        "\r\n      log print" \
                                         "\r\n      log start  [seconds]" \
-                                        "\r\n      log dump"
+                                        "\r\n  INA commands:" \
+                                        "\r\n      ina read  register" \
+                                        "\r\n      ina write register value"
 
 void setup_telnetServer( void );
 void setup_ntpClient( int wifi_accesspoint );
