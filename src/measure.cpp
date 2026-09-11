@@ -187,9 +187,11 @@ static void measure_logger( void )
         return;
     }
     if ( ! loggerRun ) {
+        ix = 0;
         return;
     }
     if ( ix >= loggerSamples ) {
+        ix = 0;
         loggerRun = 0;
         Serial.println("\r\nMeasure stop");
         return;

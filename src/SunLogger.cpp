@@ -80,7 +80,7 @@ void connect( int wifi_accesspoint )
 
 //-----------------------------------------------------------------------------------------
 
-#define TASK_STACK_SIZE  2048   // Words (not bytes), 1024 is not enough for "Wire"
+#define TASK_STACK_SIZE  2048   // Words (not bytes), 1024 is not enough with "Wire" library
 #define TASK_PRIORITY    2      // Task priority (1 = lowest)
 
 void setup( void )
