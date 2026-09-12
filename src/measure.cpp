@@ -49,8 +49,7 @@ int           Ntaps  = 20;          // Filter coefficient
 //
 adcValue_t    adcValue;             // Work space variable (filtered ADC data)
 //
-int           loggerRun = 0;
-uint32_t      loggerSamples;
+logger_t      logger;
 loggerData_t  loggerData[LOGSIZE];
 
 //-----------------------------------------------------------------------------------------
@@ -100,6 +99,12 @@ void taskMeasure( void UNUSED *pvParameters )
 
     // Set INA219 chip mode continuous 16 samples averaging (+-320 mV)
     INA.reset();
+
+    // Initialize logger
+    logger.run     = 0;
+    logger.count   = 0;
+    logger.samples = 0;
+    logger.data    = loggerData;
 
     // Initializetion: Get current uptime
     xLastWakeTime = xTaskGetTickCount();
@@ -171,11 +176,17 @@ void measure_start( uint32_t seconds )
 {
     uint32_t samples = seconds * 1000 / xTaskPeriod;
 
+    if ( ! INA.isConnected() ) {
+         Serial.println("\r\nError: INA is not connected!");
+         return;
+    }
     if ( samples > LOGSIZE ) {
          samples = LOGSIZE;
     }
-    loggerSamples = samples;
-    loggerRun     = 1;
+    memset( logger.data, 0, LOGSIZE * sizeof(loggerData_t) );
+    logger.samples = samples;
+    logger.count = 0;
+    logger.run = 1;
     Serial.println("\r\nMeasure start");
     return;
 }
@@ -184,22 +195,19 @@ void measure_start( uint32_t seconds )
 // Logger's "work horse" to collect data into "loggerData[]"
 static void measure_logger( void )
 {
-    static uint32_t ix = 0;
-
     if ( ! INA.isConnected() ) {
-        loggerRun = 0;
-        Serial.println("\r\nError: INA is not connected!");
-        return;
+         logger.run = 0;
+         logger.count = 0;
+         logger.samples = 0;
+         return;
     }
-    if ( ! loggerRun ) {
-        ix = 0;
-        return;
+    if ( ! logger.run ) {
+         return;
     }
-    if ( ix >= loggerSamples ) {
-        ix = 0;
-        loggerRun = 0;
-        Serial.println("\r\nMeasure stop");
-        return;
+    if ( logger.count >= logger.samples ) {
+         logger.run = 0;
+         Serial.println("\r\nMeasure stop");
+         return;
     }
     int offset = -10;      // [uV]
     int Rshunt = 100;      // [mOhm]
@@ -208,7 +216,7 @@ static void measure_logger( void )
     int mA = uV / Rshunt;
     int mV = INA.bus_mV();
 
-    loggerData[ix].mV = mV;
-    loggerData[ix].mA = mA;
-    ix += 1;    
+    logger.data[ logger.count ].mV = mV;
+    logger.data[ logger.count ].mA = mA;
+    logger.count++;    
 }

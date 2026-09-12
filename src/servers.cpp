@@ -14,9 +14,11 @@ extern threadSafeFS::FS TSFS;
 telnetServer_t  *telnetServer = NULL;
 ftpServer_t     *ftpServer    = NULL;
 
-extern uint32_t     loggerSamples;
-extern loggerData_t loggerData[];
-extern INA219       INA();
+extern logger_t  logger;
+extern INA219    INA();
+
+static int print_logdata( telnetServer_t::telnetConnection_t *tcn );
+static int write_logfile( char *filename, telnetServer_t::telnetConnection_t *tcn );
 
 
 // Provide callback function that would handle user-defined commands
@@ -84,25 +86,16 @@ String telnetCommandHandlerCallback (int argc, char *argv [], telnetServer_t::te
         return "\r";
     }
     else if (argv0is ("log") && argv1is ("print")) {
-            int  period_ms = measure_period( 0 );
-            for (int i = 0; i < loggerSamples; i++)
-            {
-                char  buf [80];
-                float time_s  = (period_ms * i)  / 1000.0;
-                float voltage = loggerData[i].mV / 1000.0;
-                float current = loggerData[i].mA / 1000.0;
-                snprintf (buf, sizeof(buf), "%.3f %.3f %.3f\r\n", time_s, voltage, current);
-                if (tcn->sendString (buf) <= 0) {
-                    return "\r";
-                }
-                delay (20); 
-
-                if (tcn->peekChar ()) {
-                    tcn->recvChar ();
-                    return "\r"; // break the loop and return something different than "" to let the telnet server function know that the command has been processed
-                }
+        print_logdata( tcn );
+        // return something different than empty string "" to let the telnet server function know that the command has been processed
+        return "\r";
+    }
+    else if (argv0is ("log") && argv1is ("write")) {
+        if ( argc >= 3 ) {
+            if ( write_logfile( argv[2], tcn) ) {
+                 return "\r";   // OK
             }
-            return "\r"; // return something different than empty string "" to let the telnet server function know that the command has been processed
+        }
     }
     /*
     else if (argv0is ("ina") && argv1is ("read")) {
@@ -126,6 +119,64 @@ String telnetCommandHandlerCallback (int argc, char *argv [], telnetServer_t::te
 
     // Unhandeled - let the Telnet server try to handle the command itself
     return "";
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------
+
+static int print_logdata(  telnetServer_t::telnetConnection_t *tcn )
+{
+    int  period_ms = measure_period( 0 );
+
+    for (int i = 0; i < logger.samples; i++)
+    {
+        char  buf [80];
+        float time_s  = (period_ms * i)    / 1000.0;
+        float voltage =  logger.data[i].mV / 1000.0;
+        float current =  logger.data[i].mA / 1000.0;
+
+        snprintf (buf, sizeof(buf), "%.3f %.3f %.3f\r\n", time_s, voltage, current);
+        if (tcn->sendString (buf) <= 0) {
+            return 1;
+        }
+        delay (20); 
+
+        if (tcn->peekChar ()) {
+            tcn->recvChar ();
+            return 1;           // break the loop
+        }
+    }
+    return 1;
+}
+
+
+// Write int32 binary log file (little endian)
+// Simplify file format to 32 bit integers, which are easy to read into Octave.
+static int write_logfile (char *filename, telnetServer_t::telnetConnection_t *tcn)
+{
+    // Use thread-safe wrapper as you would use LittleFS in your code
+    // "filename" must be with absolute path (start with '/' character)
+    File  f = TSFS.open (filename, "w");
+
+    if ( ! f ) {
+        if ( *filename != '/' ) {
+            tcn->sendString ("Error: Filename must be with absolute path! (start with '/' character)\r\n");
+            return 0;
+        }
+    }
+
+    int       period_ms = measure_period( 0 );
+    int32_t   column[3];
+    uint8_t  *buf = (uint8_t*) column;
+
+    for ( int i = 0; i < logger.samples; i++ ) {
+        column[0] = period_ms * i;
+        column[1] = logger.data[i].mV;
+        column[2] = logger.data[i].mA;
+        f.write ( buf, sizeof(column) );
+    //  f.print ("This is a test file.");
+    }
+    f.close ();
+    return 1;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------
