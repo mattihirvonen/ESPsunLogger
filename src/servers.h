@@ -47,7 +47,7 @@
                                         "\r\n      log period [ms]" \
                                         "\r\n      log print" \
                                         "\r\n      log start  [seconds]" \
-                                        "\r\n      log write  filename" \
+                                        "\r\n      log save   filename  [float]" \
                                         "\r\n  INA commands:" \
                                         "\r\n      ina read  register" \
                                         "\r\n      ina write register value"

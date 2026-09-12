@@ -18,7 +18,7 @@ extern logger_t  logger;
 extern INA219    INA();
 
 static int print_logdata( telnetServer_t::telnetConnection_t *tcn );
-static int write_logfile( char *filename, telnetServer_t::telnetConnection_t *tcn );
+static int write_logfile( char *filename, telnetServer_t::telnetConnection_t *tcn, int float32 );
 
 
 // Provide callback function that would handle user-defined commands
@@ -32,6 +32,7 @@ String telnetCommandHandlerCallback (int argc, char *argv [], telnetServer_t::te
     #define argv0is(X) (argc > 0 && !strcmp (argv[0], X))  
     #define argv1is(X) (argc > 1 && !strcmp (argv[1], X))
     #define argv2is(X) (argc > 2 && !strcmp (argv[2], X))   
+    #define argv3is(X) (argc > 3 && !strcmp (argv[3], X))   
 
     // Short-running functions should return the text the Telnet server will send to the client as a response to the command
     if (argv0is ("turn") && argv1is ("led") && argv2is ("on")) {
@@ -90,9 +91,14 @@ String telnetCommandHandlerCallback (int argc, char *argv [], telnetServer_t::te
         // return something different than empty string "" to let the telnet server function know that the command has been processed
         return "\r";
     }
-    else if (argv0is ("log") && argv1is ("write")) {
-        if ( argc >= 3 ) {
-            if ( write_logfile( argv[2], tcn) ) {
+    else if (argv0is ("log") && argv1is ("save")) {
+        if ( argc == 3 ) {
+            if ( write_logfile(argv[2], tcn, 0) ) {
+                 return "\r";   // OK
+            }
+        }
+        if ( (argc >= 4) && argv3is ("float")) {
+            if ( write_logfile(argv[2], tcn, 1) ) {
                  return "\r";   // OK
             }
         }
@@ -123,6 +129,17 @@ String telnetCommandHandlerCallback (int argc, char *argv [], telnetServer_t::te
 
 //-----------------------------------------------------------------------------------------------------------------------------
 
+// "filename" must be with absolute path (start with '/' character)
+static int check_filename( const char *filename, telnetServer_t::telnetConnection_t *tcn )
+{
+    if ( *filename != '/' ) {
+        tcn->sendString ("Error: Filename must be with absolute path! (start with '/' character)\r\n");
+        return 0;
+    }
+    return 1; // OK
+}
+
+
 static int print_logdata(  telnetServer_t::telnetConnection_t *tcn )
 {
     int  period_ms = measure_period( 0 );
@@ -149,30 +166,43 @@ static int print_logdata(  telnetServer_t::telnetConnection_t *tcn )
 }
 
 
-// Write int32 binary log file (little endian)
-// Simplify file format to 32 bit integers, which are easy to read into Octave.
-static int write_logfile (char *filename, telnetServer_t::telnetConnection_t *tcn)
+// Write binary log file
+// Simplify file format to 32 bit integers/floats, which are easy to read into Octave.
+static int write_logfile (char *filename, telnetServer_t::telnetConnection_t *tcn, int float32)
 {
-    // Use thread-safe wrapper as you would use LittleFS in your code
-    // "filename" must be with absolute path (start with '/' character)
-    File  f = TSFS.open (filename, "w");
+    #define COLUMNS 3
 
+    if ( ! check_filename(filename, tcn) ) {
+        return 0;
+    }
+    // Use thread-safe wrapper as you would use LittleFS in your code
+    File   f = TSFS.open (filename, "w");
     if ( ! f ) {
-        if ( *filename != '/' ) {
-            tcn->sendString ("Error: Filename must be with absolute path! (start with '/' character)\r\n");
-            return 0;
-        }
+        return 0;
     }
 
     int       period_ms = measure_period( 0 );
-    int32_t   column[3];
-    uint8_t  *buf = (uint8_t*) column;
+    int32_t   columns[COLUMNS];
+    float    *f32 = (float*)   columns;
+    uint8_t  *buf = (uint8_t*) columns;
 
     for ( int i = 0; i < logger.samples; i++ ) {
-        column[0] = period_ms * i;
-        column[1] = logger.data[i].mV;
-        column[2] = logger.data[i].mA;
-        f.write ( buf, sizeof(column) );
+
+        // Write int32 binary log file (little endian)
+        // Simplify file format to 32 bit integers, which are easy to read into Octave.
+        columns[0] = period_ms * i;
+        columns[1] = logger.data[i].mV;
+        columns[2] = logger.data[i].mA;
+
+        // Convert int32 to "float" binary log file
+        // Simplify file format to 32 bit floats, which are easy to read into Octave.
+        if ( float32 ) {
+            for ( int j = 0; j < COLUMNS; j++ ) {
+                f32[j] = columns[j];
+            }
+            f32[0] /= 1000.0;   // Scale [ms] to seconds
+        }
+        f.write ( buf, sizeof(columns) );
     //  f.print ("This is a test file.");
     }
     f.close ();
