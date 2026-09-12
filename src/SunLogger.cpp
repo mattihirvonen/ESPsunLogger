@@ -32,7 +32,7 @@
 
 #include <LittleFS.h>             // Or FFat.h or/and SD.h
 #include <threadSafeFS.h>         // Include thread-safe wrapper since LittleFS, FFat and SD file systems are not thread safe
-#include "serversConfig.h"        // Function prototype for setup_telnet()
+#include "servers.h"              // Function prototype for setup_servers()
 
 // Crete thread-safe wrapper arround LittleFS (or FFat or SD)
 using  File = threadSafeFS::File; // Use thread-safe wrapper for all file operations form now on in your code
