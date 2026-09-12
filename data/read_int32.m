@@ -3,19 +3,21 @@
 % (with option to keep int32).
 
 function data = read_int32(filename, columns, endian, keepInt32)
-  % READ_INT32_FOURCOL Reads a binary file with 4 columns of int32 data.
+  % READ_INT32 Reads a binary file with "columns" of int32 data.
   %
-  %   data = READ_INT32_FOURCOL(filename)
-  %   Reads the binary file specified by 'filename' and returns an N×4 matrix
+  %   data = READ_INT32(filename)
+  %   Reads the binary file specified by 'filename' and returns an N×1 matrix
   %   of values. Each row corresponds to one record of four integers.
   %
-  %   data = READ_INT32_FOURCOL(filename, endian)
+  %   data = READ_INT32(filename, 3, endian)
+  %   Reads the binary file specified by 'filename' and returns an N×3 matrix
+  %   of values. Each row corresponds to one record of three integers.
   %   Specifies the byte ordering for reading:
   %       'native'  - Use system's native byte order (default)
   %       'ieee-le' - Little-endian
   %       'ieee-be' - Big-endian
   %
-  %   data = READ_INT32_FOURCOL(filename, endian, keepInt32)
+  %   data = READ_INT32(filename, 3, endian, keepInt32)
   %   If keepInt32 is true, output remains int32; otherwise converted to double.
   %
   %   Example (4 columns):

@@ -1,13 +1,11 @@
-% Optional endianness selection ('native', 'ieee-le', 'ieee-be').
 % Output type conversion to double by default for easier numeric processing
-% (with option to keep int32).
 
 function data = read_float(filename, columns)
-  % READ_FLOAT Reads a binary file with 4 columns of float data.
+  % READ_FLOAT Reads a binary file with "columns" of float data.
   %
   %   data = READ_FLOAT(filename)
-  %   Reads the binary file specified by 'filename' and returns ann single column
-  %   matrix of values. Each row corresponds to one record integer.
+  %   Reads the binary file specified by 'filename' and returns an N*1
+  %   matrix of values. Each row corresponds to one record float.
   %
   %   Example (4 columns):
   %       M = read_float('data.bin', 4);
@@ -56,7 +54,7 @@ end
 
 % Key Features
 %
-% OOutput Type – Convert to double for calculations.
+% Output Type – Convert to double for calculations.
 % Strong Validation – Clearer error messages and type checks.
 %
 %
