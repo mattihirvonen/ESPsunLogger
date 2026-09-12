@@ -21,10 +21,13 @@ function data = read_int32(filename, columns, endian, keepInt32)
   %   Example (4 columns):
   %       M = read_int32('data.bin', 4, 'ieee-le', true);
   %
-  %   Author: <Your Name>
-  %   Date:   2026-09-11
+  %   Author: Matti Hirvonen
+  %   Date:   2026-09-12
 
   % --- Input defaults ---
+  if nargin < 2
+    columns = 1;
+  end
   if nargin < 3 || isempty(endian)
     endian = 'native';
   end
