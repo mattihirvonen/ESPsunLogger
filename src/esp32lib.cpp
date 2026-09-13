@@ -1,7 +1,8 @@
 
 #include <WiFi.h>
 #include <WiFiUdp.h>
-#include <MQTT.h>
+//#include <MQTT.h>
+#include "pinMap.h"     // LED
 
 // #include <PubSubClient.h>    // MQTT
 
@@ -10,11 +11,16 @@
 // Connect to the WiFi router
 void setup_wifi( const char *ssid, const char *password )
 {
+  static int ledstate = 0;
+
   Serial.println("Connecting to Wi-Fi...");
+  delay(500);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
+    delay(100);
     Serial.print(".");
+    ledstate ^= 1;
+    digitalWrite( LED, ledstate );
   }
   Serial.println("\nConnected  to Wi-Fi!");
   Serial.print("ESP32 IP Address: ");

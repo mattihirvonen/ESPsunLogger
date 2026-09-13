@@ -66,25 +66,27 @@ WiFiClient  wifiClient;
 // User LED indicate WiFi status
 void blink_led( int32_t now, int wifi_accesspoint )
 {
-    #define BLINK    1000L   // [ms]
+    #define BLINK_AP    1000L   // [ms] accesspoint
+    #define BLINK_NC    100L    // [ms] no connection wifi router
+
     static  int32_t  blink = 0;
+    static  int      ledstate = 0;
 
-    if ( (int32_t)(now - blink) >= BLINK ) {
-        blink += BLINK;
-
-        if ( wifi_accesspoint ) {
-            static int ledstate = 0;
-
+    if ( wifi_accesspoint )
+    {
+        if ( (int32_t)(now - blink) >= BLINK_AP ) {
+            blink = now;
             ledstate ^= 1;
             digitalWrite( LED, ledstate );  // Toggle the LED on/off
         }
-        else {
-            if  ( WiFi.status() == WL_CONNECTED ) { 
-                digitalWrite(LED, LED_ON);
-            }
-            else {
-                digitalWrite(LED, LED_OFF);
-            }
+    }
+    else // wifi_accesspoint
+    {
+        if ( (int32_t)(now - blink) >= BLINK_NC ) {
+            blink = now;
+            if  ( WiFi.status() == WL_CONNECTED ) {  ledstate  = LED_ON;  }
+            else                                  {  ledstate ^= 1;       } 
+            digitalWrite( LED, ledstate );
         }
     }
 }
@@ -99,6 +101,7 @@ void setup( void )
     Serial.begin( 115200 );
     delay( 1500 );
     Serial.println("\n\nStart...");
+    delay( 500 );
 
     pinMode(BUTTON, INPUT_PULLUP);  // Enable internal pull-up resistor
     pinMode(LED, OUTPUT);           // Set user LED GPIO pin as output
@@ -116,7 +119,7 @@ void setup( void )
     #endif // WIFI_ACCESSPOINT
 
     setup_servers( WIFI_ACCESSPOINT );
-    setup_mqtt( WIFI_ACCESSPOINT, MQTT_CLIENT );
+    setup_mqtt( WIFI_ACCESSPOINT, MQTT_SERVER, MQTT_CLIENT );
 
     #if 1
     // There is broblem with public servers like broker.hivemq.com
@@ -138,5 +141,5 @@ void loop( void )
     int32_t    now = millis();
 
     blink_led( now, WIFI_ACCESSPOINT );
-    loop_mqtt( now, WIFI_ACCESSPOINT, MQTT_CLIENT );
+    loop_mqtt( now, WIFI_ACCESSPOINT, MQTT_SERVER, MQTT_CLIENT );
 }
