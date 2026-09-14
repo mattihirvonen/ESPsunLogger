@@ -146,9 +146,9 @@ static int print_logdata(  telnetServer_t::telnetConnection_t *tcn )
     for (int i = 0; i < logger.samples; i++)
     {
         char  buf [80];
-        float time_s  = (period_ms * i)    / 1000.0;
-        float voltage =  logger.data[i].mV / 1000.0;
-        float current =  logger.data[i].mA / 1000.0;
+        float time_s  = (period_ms * i)    / 1000.0;    // Scale to [s]
+        float voltage =  logger.data[i].mV / 1000.0;    // Scale to [V]
+        float current =  logger.data[i].mA / 1000.0;    // Scale to [A]
         float Tdiff   =  logger.data[i].dT / 1000.0;    // Scale to [ms]
 
         snprintf (buf, sizeof(buf), "%.3f %.3f %.3f %.3f\r\n", time_s, voltage, current, Tdiff);
