@@ -20,6 +20,7 @@ typedef struct
 {
   uint16_t   mV;
   int16_t    mA;
+  int16_t    dT;     // [us] jitter measure
 } loggerData_t;
 
 

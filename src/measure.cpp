@@ -3,12 +3,20 @@
 //#include <string.h>
 //#include <freertos/FreeRTOS.h>     // TickType_t
 
+#include <esp_adc/adc_oneshot.h>
+#include <esp_adc/adc_continuous.h>
+
 #include "pinMap.h"
 #include "measure.h"
 #include "INA219.h"
 
-#define TASK_PERIOD 50       // in tick(s) [ms]
-#define LOGSIZE     10000
+#define TASK_PERIOD   50     // in tick(s) [ms]
+
+#if defined(ESP32S3)  ||  defined(CONFIG_IDF_TARGET_ESP32S3)
+#define LOGSIZE     30000    // Data rows (*3 colums *2 bytes)
+#else
+#define LOGSIZE     10000    // Data rows (*3 colums *2 bytes)
+#endif
 
 static  TickType_t  xTaskPeriod = pdMS_TO_TICKS( TASK_PERIOD );
 
@@ -92,8 +100,25 @@ void taskMeasure( void UNUSED *pvParameters )
     pinMode( ADC_DIODE, INPUT );
     pinMode( ADC_PANEL, INPUT );
 
-    if ( Wire.begin() )  { Serial.println("I2C initialization ok");                        }
-    else                 { Serial.println("I2C initialization fail");                      }
+    #if 0
+    // https://randomnerdtutorials.com/esp32-adc-analog-read-arduino-ide/#more-85752
+    // https://randomnerdtutorials.com/esp-idf-esp32-gpio-analog-adc/
+    adc_attenuation_t  attenuation = ADC_11db;    // MH: ADC_ATTEN_DB_11 - DB_0=0  DB_2_5=1  DB_6=2  DB_11=3
+    adc_bitwidth_t     resolution  = 12;          // MH: 12, 11, 10 or 9
+
+    Serial.printf ("Configure ADC_WIDTH_BIT_12 and DB_11");
+    analogReadResolution(resolution);
+    analogSetAttenuation(ADC_PANEL, attenuation);
+    analogSetAttenuation(ADC_DIODE, attenuation);
+    #endif
+
+    // https://docs.espressif.com/projects/arduino-esp32/en/latest/api/i2c.html)
+    if ( Wire.begin() )  { Serial.println("I2C initialization ok");    }
+    else                 { Serial.println("I2C initialization fail");  }
+
+    Wire.setClock( 400000 );  // 10k, 100k (default), 400k, 1M, 3.4M
+
+    // Wire transfer 27 bits per register access
     if ( INA.begin()  )  { Serial.println("I2C connect to INA ok");                        }
     else                 { Serial.println("Could not I2C connect to INA. Fix and Reboot"); }
 
@@ -195,6 +220,11 @@ void measure_start( uint32_t seconds )
 // Logger's "work horse" to collect data into "loggerData[]"
 static void measure_logger( void )
 {
+    static  int64_t  us_prev;
+            int64_t  us_now  = esp_timer_get_time(); // [us]
+            int32_t  us_diff = us_now - us_prev;
+                     us_prev = us_now;
+
     if ( ! INA.isConnected() ) {
          logger.run = 0;
          logger.count = 0;
@@ -218,5 +248,6 @@ static void measure_logger( void )
 
     logger.data[ logger.count ].mV = mV;
     logger.data[ logger.count ].mA = mA;
+    logger.data[ logger.count ].dT = us_diff;
     logger.count++;    
 }
