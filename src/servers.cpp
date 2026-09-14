@@ -66,9 +66,8 @@ String telnetCommandHandlerCallback (int argc, char *argv [], telnetServer_t::te
         uint32_t ms = 0;
         if ( argc >= 3 ) {
             ms = atoi( argv[2] );
-            if ( (ms < 10) || (1000 < ms) ) {
-                ms = 50;
-            }
+            if ( ms < 1     ) ms = 1;
+            if ( ms > 10000 ) ms = 10000;
             measure_period(ms);
         }
         else {
@@ -150,8 +149,9 @@ static int print_logdata(  telnetServer_t::telnetConnection_t *tcn )
         float time_s  = (period_ms * i)    / 1000.0;
         float voltage =  logger.data[i].mV / 1000.0;
         float current =  logger.data[i].mA / 1000.0;
+        float Tdiff   =  logger.data[i].dT / 1000.0;    // Scale to [ms]
 
-        snprintf (buf, sizeof(buf), "%.3f %.3f %.3f\r\n", time_s, voltage, current);
+        snprintf (buf, sizeof(buf), "%.3f %.3f %.3f %.3f\r\n", time_s, voltage, current, Tdiff);
         if (tcn->sendString (buf) <= 0) {
             return 1;
         }
@@ -170,7 +170,7 @@ static int print_logdata(  telnetServer_t::telnetConnection_t *tcn )
 // Simplify file format to 32 bit integers/floats, which are easy to read into Octave.
 static int write_logfile (char *filename, telnetServer_t::telnetConnection_t *tcn, int float32)
 {
-    #define COLUMNS 3
+    #define COLUMNS 4
 
     if ( ! check_filename(filename, tcn) ) {
         return 0;
@@ -193,6 +193,7 @@ static int write_logfile (char *filename, telnetServer_t::telnetConnection_t *tc
         columns[0] = period_ms * i;
         columns[1] = logger.data[i].mV;
         columns[2] = logger.data[i].mA;
+        columns[3] = logger.data[i].dT;
 
         // Convert int32 to "float" binary log file
         // Simplify file format to 32 bit floats, which are easy to read into Octave.
