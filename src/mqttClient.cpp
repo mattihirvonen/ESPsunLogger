@@ -1,3 +1,5 @@
+
+
 #include <WiFi.h>
 #include <MQTT.h>
 #include <stdint.h>
@@ -95,7 +97,7 @@ static void messageReceived( String &topic, String &payload )
 }
 
 
-void setup_mqtt( int wifi_accesspoint, int mqtt_server, int mqtt_client )
+void setup_mqtt_client( int wifi_accesspoint, int mqtt_server, int mqtt_client )
 {
     // Connect to MQTT broker
     // Note: Local domain names (e.g. "Computer.local" on OSX) are not supported
@@ -115,7 +117,7 @@ void setup_mqtt( int wifi_accesspoint, int mqtt_server, int mqtt_client )
 }
 
 
-void loop_mqtt( int32_t now, int wifi_accesspoint,  int mqtt_server, int mqtt_client )
+void loop_mqtt_client( int32_t now, int wifi_accesspoint,  int mqtt_server, int mqtt_client )
 {
     #define PERIOD  1000L  // [ms]
 

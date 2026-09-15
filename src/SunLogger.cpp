@@ -25,8 +25,8 @@
 #include "esp32lib.hpp"
 #include "pinMap.h"               // LED, BUTTON, AIN0, AIN1, ...
 #include "measure.h"              // adcValue_t
-#include "mqttClient.h"           // setup_mqtt(), loop_mqtt()
-
+#include "mqttClient.h"           // setup_mqtt_client(), loop_mqtt_client()
+#include "mqttBroker.h"           // setup_mqtt_broker(), loop_mqtt_broker()
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -119,7 +119,9 @@ void setup( void )
     #endif // WIFI_ACCESSPOINT
 
     setup_servers( WIFI_ACCESSPOINT );
-    setup_mqtt( WIFI_ACCESSPOINT, MQTT_SERVER, MQTT_CLIENT );
+    setup_mqtt_broker();
+    setup_mqtt_client( WIFI_ACCESSPOINT, MQTT_SERVER, MQTT_CLIENT );
+
 
     #if 1
     // There is broblem with public servers like broker.hivemq.com
@@ -141,5 +143,6 @@ void loop( void )
     int32_t    now = millis();
 
     blink_led( now, WIFI_ACCESSPOINT );
-    loop_mqtt( now, WIFI_ACCESSPOINT, MQTT_SERVER, MQTT_CLIENT );
+    loop_mqtt_client( now, WIFI_ACCESSPOINT, MQTT_SERVER, MQTT_CLIENT );
+    loop_mqtt_broker();
 }
