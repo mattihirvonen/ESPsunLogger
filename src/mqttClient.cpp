@@ -105,7 +105,7 @@ void setup_mqtt_client( int wifi_accesspoint, int mqtt_server, int mqtt_client )
     if ( ! mqtt_client ) {
         return;
     }
-    if ( wifi_accesspoint ) {
+    if ( mqtt_server ) {
         mqttClient.begin(MQTT_LOCAL,  wifiClient);
     }
     else {
@@ -113,7 +113,7 @@ void setup_mqtt_client( int wifi_accesspoint, int mqtt_server, int mqtt_client )
     }
     mqttClient.onMessage(messageReceived);
 
-    connect_mqtt(  wifi_accesspoint, mqtt_client );
+    connect_mqtt( wifi_accesspoint, mqtt_client );
 }
 
 

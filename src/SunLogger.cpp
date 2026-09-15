@@ -45,7 +45,7 @@ threadSafeFS::FS TSFS (LittleFS);
 #endif
 
 #define WIFI_ACCESSPOINT  0     // Zero: connect to WiFi router
-#define MQTT_SERVER       0     // Local MQTT broker (future feature)
+#define MQTT_SERVER       0     // Client use local MQTT broker
 #define MQTT_CLIENT       1     // Connect to MQTT broker?
 
 //-----------------------------------------------------------------------------------------
