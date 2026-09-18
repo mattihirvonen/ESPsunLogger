@@ -25,8 +25,9 @@
 #include "esp32lib.hpp"
 #include "pinMap.h"               // LED, BUTTON, AIN0, AIN1, ...
 #include "measure.h"              // adcValue_t
-#include "mqttClient.h"           // setup_mqtt_client(), loop_mqtt_client()
-#include "mqttBroker.h"           // setup_mqtt_broker(), loop_mqtt_broker()
+#include "solar.h"
+#include "mqttService.h"          // setup_mqtt_service(), loop_mqtt_service()
+#include "mqttClient.h"           // setup_mqtt_client(),  loop_mqtt_client()
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -44,9 +45,8 @@ threadSafeFS::FS TSFS (LittleFS);
 #define UNUSED  __attribute__((unused))
 #endif
 
-#define WIFI_ACCESSPOINT  0     // Zero: connect to WiFi router
-#define MQTT_SERVER       0     // Client use local MQTT broker
-#define MQTT_CLIENT       1     // Connect to MQTT broker?
+#define WIFI_ACCESSPOINT  1     // Zero: connect to WiFi router
+#define MQTT_CLIENT       0     // Connect to MQTT broker?
 
 //-----------------------------------------------------------------------------------------
 
@@ -60,8 +60,7 @@ const char* ssid_AP     = "ACCESSPOINT_WiFi_SSID";
 const char* password_AP = "ACCESSPOINT_WiFi_PASSWORD";
 #endif
 
-WiFiClient  wifiClient;
-
+//-----------------------------------------------------------------------------------------
 
 // User LED indicate WiFi status
 void blink_led( int32_t now, int wifi_accesspoint )
@@ -117,11 +116,12 @@ void setup( void )
     // Connect to Wi-Fi router
     setup_wifi( ssid, password );
     #endif // WIFI_ACCESSPOINT
-
     setup_servers( WIFI_ACCESSPOINT );
-    setup_mqtt_broker();
-    setup_mqtt_client( WIFI_ACCESSPOINT, MQTT_SERVER, MQTT_CLIENT );
 
+    setup_solar_intensity();    // Work horse application
+
+    setup_mqtt_service( WIFI_ACCESSPOINT );
+    setup_mqtt_client( WIFI_ACCESSPOINT, MQTT_CLIENT );
 
     #if 1
     // There is broblem with public servers like broker.hivemq.com
@@ -143,6 +143,8 @@ void loop( void )
     int32_t    now = millis();
 
     blink_led( now, WIFI_ACCESSPOINT );
-    loop_mqtt_client( now, WIFI_ACCESSPOINT, MQTT_SERVER, MQTT_CLIENT );
-    loop_mqtt_broker();
+    loop_solar_intensity( now );          // Work horse application
+
+    loop_mqtt_service();
+    loop_mqtt_client( now );
 }
