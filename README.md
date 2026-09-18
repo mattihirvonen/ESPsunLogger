@@ -80,12 +80,14 @@ Look also using browser following sites web URL ( https://... )
 - https://www.hivemq.com/mqtt/public-mqtt-broker/
 - https://www.hivemq.com/blog/
 - https://www.hivemq.com/mqtt-toolbox/
+
 HiveMQ site have many (generic) interesting artichles about MQTT
 
 ### Example commands to Testing MQTT Server Message Passing
 - http://www.steves-internet-guide.com/mosquitto_pub-sub-clients/
 - mosquitto_sub -v -h test.mosquitto.org  -t "home/sundata/#"
 - mosquitto_pub    -h test.mosquitto.org  -t "home/sundata/value"  -m "12345"
+
 MQTT Explorer (windows, portable app no install)
 - https://mqtt-explorer.com/
 
