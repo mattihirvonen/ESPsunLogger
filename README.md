@@ -1,13 +1,18 @@
 
 # ESPsunLogger
 
-This iproject started as tiny/dirty two evening demo project to measure solar intensity using
-ESP(32) processor and small solar cell.
+This project started as tiny/dirty two evening demo project to measure solar intensity using
+ESP(32) processor and small solar cell. Later project has grown to be template project for new projects
+with many features (telnet /FTP servers, file system, NTP client, MQTT client and broker).
+
 In my test case I will use old Nokia (16xx model) phone's back plate containing small solar cell.
 Project's goal is to visualize how much clouds drop solar panel's output power.
 ESP32 ADC is not precision measurement instrument.
 Using careful calibration sequence results will be some how 10% accuracy.
 Solar intensites below 10% of "sun full power" will be more inaccurate.
+
+One big part of project is also measured data post processing and "theory" of sun intensity.
+This mathematical aspect is implemented using GnuPlot and Octave scripts.
 
 When estimate true solar panel output, we have to understand also solar panel's orientation versus sun's direction.
 - azimuth (compass direction from north - degrees)
@@ -19,7 +24,6 @@ Scale
 - Intensity 100% is same as theoretical 100W solar panel max output at noon from clear sky (100W)
 - Cumulative 1.0 is same as 100 Wh (with 100W solar panel))
 - ToDo: convert picture to GIF, which github show on this same web page - click link see example
-
 
 ### Measuring Strategy
 We will measure solar cell's "short circuit" current using small current shunt resistor.
