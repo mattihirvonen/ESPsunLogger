@@ -1,7 +1,8 @@
 
 # ESPsunLogger
 
-This is tiny/dirty two evening demo project to measure solar intensity using ESP(32) processor and small solar cell.
+This iproject started as tiny/dirty two evening demo project to measure solar intensity using
+ESP(32) processor and small solar cell.
 In my test case I will use old Nokia (16xx model) phone's back plate containing small solar cell.
 Project's goal is to visualize how much clouds drop solar panel's output power.
 ESP32 ADC is not precision measurement instrument.
@@ -48,8 +49,14 @@ Application can build using
 
 ### External Libraries
 Application use following libraries
-- *MQTT* MQTT library by Joel Gaehwiler
-- *PubSubClient* MQTT library by Nick O'Leary (obsolete, not used any more)
+- *LightweightSTL* library offers servers for telnet, FTP, NTP client and thread safe FS
+- *ThreadSafePing* library (companion to LightweightSTL)
+- *Streaming* library by Mikal Hart (companion to LightweightSTL
+- *wolfssl* library (companion to LightweightSTL
+- *PicoMQTT* library (broker + client, active use, works in AP and STA modes)
+- *sMQTTBbroker* library (broker, not active)
+- *MQTT* MQTT library by Joel Gaehwiler (client, not active use, do not work when ESP32 is AP)
+- *PubSubClient* MQTT library by Nick O'Leary (client, obsolete, not used any more)
 
 ### Data Post Prosessing And Visualization
 Read file *linux/README.md*
@@ -62,6 +69,7 @@ Data post prosessing and visualization tools.
 Look also using browser following sites web URL ( https://... ) 
 - test.mosquitto.org - Ports: MQTT 1883, WebSocket 8081 (wss://test.mosquitto.org)
 - https://test.mosquitto.org
+- https://www.emqx.com/en/mqtt/public-mqtt5-broker
 - public.cloud.shiftr.io - Ports: MQTT 1883, WebSocket 443 (wss://public.cloud.shiftr.io , Public credentials: try / try , Security: Always prefer wss:// with TLS)
 - https://www.shiftr.io/docs/cloud/
 - broker.hivemq.com - Ports: MQTT 1883, WebSocket 8884 (wss://broker.hivemq.com , Path: /mqtt)
@@ -74,7 +82,8 @@ HiveMQ site have many (generic) interesting artichles about MQTT
 - http://www.steves-internet-guide.com/mosquitto_pub-sub-clients/
 - mosquitto_sub -v -h test.mosquitto.org  -t "home/sundata/#"
 - mosquitto_pub    -h test.mosquitto.org  -t "home/sundata/value"  -m "12345"
-
+MQTT Explorer (windows, portable app no install)
+- https://mqtt-explorer.com/
 
 ### ToDo...
 - Add some info to project how to use GnuPlot for data visualization
