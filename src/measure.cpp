@@ -225,13 +225,13 @@ static void measure_logger( void )
             int32_t  us_diff = us_now - us_prev;
                      us_prev = us_now;
 
+    if ( ! logger.run ) {
+         return;
+    }
     if ( ! INA.isConnected() ) {
          logger.run = 0;
          logger.count = 0;
          logger.samples = 0;
-         return;
-    }
-    if ( ! logger.run ) {
          return;
     }
     if ( logger.count >= logger.samples ) {
