@@ -25,6 +25,10 @@ Scale
 - Cumulative 1.0 is same as 100 Wh (with 100W solar panel))
 - ToDo: convert picture to GIF, which github show on this same web page - click link see example
 
+Other application features (log command by telnet):
+- logger solar panel and other device voltage and current using INA219 (sample rate adjustable 2ms - 10000ms)
+- save logged measuement data to file (ASCII or 32 bit float or int32 data, see Octave scripts read_float.h and read_int32.m)
+
 ### Measuring Strategy
 We will measure solar cell's "short circuit" current using small current shunt resistor.
 Here in 60 deg. north latitude sun will shine about 950 W/m2 from clear sky at noon (summer time).
