@@ -45,7 +45,7 @@ threadSafeFS::FS TSFS (LittleFS);
 #define UNUSED  __attribute__((unused))
 #endif
 
-#define WIFI_ACCESSPOINT  1     // Zero: connect to WiFi router
+#define WIFI_ACCESSPOINT  0     // Zero: connect to WiFi router
 #define MQTT_CLIENT       0     // Connect to MQTT broker?
 
 //-----------------------------------------------------------------------------------------

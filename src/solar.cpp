@@ -58,7 +58,7 @@ void loop_solar_intensity( int32_t now )
 
     // Produce Octave and GnuPlot compatible data row
     #if 1
-    snprintf( line, sizeof(line), "%3d  %.3f  %6d  %4d  %4d  %4d  %4d\r\n",
+    snprintf( line, sizeof(line), "%3d  %.3f  %6d  %4d  %4d  %4d  %4d",
               solarIntensity, cumulative, counter, adcData_diff, adcValue.panel, adcValue.diode,
               adcValue.panel - adcValue.debug );
     #else
