@@ -31,10 +31,22 @@ void setup_wifi( const char *ssid, const char *password )
 // Setup WiFi Access Point
 void setup_wifi_AP( const char *ssid, const char *password )
 {
-  WiFi.softAP(ssid, password);
+  int channel = 1;
+  int ssid_hidden = 0;
+  int max_connection = 8;  // Default is 4
+
+  bool apStarted = WiFi.softAP(ssid, password, channel, ssid_hidden, max_connection);
   IPAddress IP = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
-  Serial.println(IP);
+
+  if (!apStarted) {
+    Serial.println("[ERROR] Failed to start SoftAP.");
+    while (true) delay(1000);
+  }
+  // Print AP info
+  Serial.println("[INFO] SoftAP started successfully.");
+  Serial.print("SSID: "); Serial.println(ssid);
+  Serial.print("Password: "); Serial.println(password);
+  Serial.print("IP Address: "); Serial.println(IP);
 }
 
 // ---------------------------------------------------------------------------------------
