@@ -26,6 +26,16 @@
 #define MQTT_PORT      1883
 #define TOPIC          "#"
 #define UDP_PORT       8080                // Default UDP packet listening port
+#define MAXTOKENS      10
+
+
+typedef struct
+{
+    int     count;                            // Count of configured items
+    int     column[MAXTOKENS];                // Column number for non JSON/XML data
+    char    name[MAXTOKENS][TOKEN_NAMESIZE];  // JSON object's names
+} json_t;
+
 
 typedef struct
 {
@@ -35,29 +45,21 @@ typedef struct
     int     Naverage;
     float   time_scale;
     char    topic[64];
+    //
+    json_t *json;
 } conf_t;
 
 
+json_t json;
 conf_t conf = {
       .start_time     = 0,
       .tz_offset      = 3,                 // Default: Finland summer time
       .mqtt_broker    = MQTT_BROKER,
       .Naverage       = 1,
       .time_scale     = SCALE_HOUR,
-      .topic          = TOPIC
+      .topic          = TOPIC,
+      .json           = &json
 };
-
-
-#define MAXTOKENS  10
-
-typedef struct
-{
-    int   count;
-    int   column[MAXTOKENS];
-    char  name[MAXTOKENS][TOKEN_NAMESIZE];
-} parse_t;
-
-parse_t parse;
 
 // -----------------------------------------------------------------------------
 
@@ -116,6 +118,14 @@ void strip_cr_lf( char *buffer, int len )
         if ( *buffer == '\n' )  *buffer = 0;
         buffer++;
     }
+}
+
+
+void printTime( time_t seconds, float time_scale )
+{
+    float timestamp = seconds;
+
+    printf("%9.5f", timestamp / time_scale);
 }
 
 // -----------------------------------------------------------------------------
@@ -214,15 +224,8 @@ void addValues( shunt_t *sum, shunt_t *value )
 }
 
 #endif
+
 // -----------------------------------------------------------------------------
-
-void printTime( time_t seconds, float time_scale )
-{
-    float timestamp = seconds;
-
-    printf("%9.5f", timestamp / time_scale);
-}
-
 
 #if 0
 void printValue1( int value, UNUSED const char *topic, float scale )
@@ -335,8 +338,6 @@ int udp_recvfrom( int sockfd )
 // -----------------------------------------------------------------------------
 // MQTT
 
-token_t token[ MAXTOKENS ];
-
 void printToken( token_t *token, int token_count, char *name )
 {
     for ( int i = 0; i < token_count; i++ )
@@ -350,18 +351,18 @@ void printToken( token_t *token, int token_count, char *name )
 }
 
 
-void printParse( parse_t *parse, token_t *token, int token_count )
+void printParse( json_t *json, token_t *token, int token_count )
 {
-    for ( int i = 0; i < parse->count; i++ )
+    for ( int i = 0; i < json->count; i++ )
     {
 //      printf(" -- %s:%s", token[i].name,  token[i].data);
-        if ( parse.column[i] > 0 ) {
+        if ( json->column[i] > 0 ) {
             // Column's value is in token's name field
             // Logical column numbering start from 1...
-            printf("  %s", token.name[i-1]); 
+            printf("  %s", &token->name[i-1]); 
         }
         else {
-            printToken( token, token_count, parse->name[i] );
+            printToken( token, token_count, json->name[i] );
         }
     }
 }
@@ -371,9 +372,10 @@ int handleMQTTmessage( char *message, int bytes_received )
 {
     #define MQTT_BUFFER_SIZE  2048
 
-    static int   messages = 0, count = 0;
-    static int   UNUSED cserr = 0;
-           char  buffer[MQTT_BUFFER_SIZE];
+//  static int      UNUSED cserr = 0;
+    static int      messages = 0, count = 0;
+           char     buffer[MQTT_BUFFER_SIZE];
+           token_t  token[MAXTOKENS];
 
     if ( bytes_received <= 0) {
         return -1;
@@ -397,8 +399,8 @@ int handleMQTTmessage( char *message, int bytes_received )
             seconds %= 24*3600;
         }
         printTime( seconds, conf.time_scale );
-        if ( parse.count ) {
-            printParse( &parse, token, token_count );
+        if ( conf.json->count ) {
+            printParse( conf.json, token, token_count );
         }
         else {
             printf("  %s", buffer);
@@ -493,6 +495,7 @@ void help( void )
 }
 
 
+// ToDo: Implement with functions getopt() and strncpy()
 void parse_args( int argc, char *argv[] )
 {
     for ( int ix = 0; ix < argc; ix++ )
@@ -507,9 +510,17 @@ void parse_args( int argc, char *argv[] )
         else if ( !strcmp(argv[ix], "-t") )  { strcpy( conf.topic,         argv[++ix] );  }
         else if ( !strcmp(argv[ix], "-h") )  { strcpy( conf.mqtt_broker,   argv[++ix] );  }
         else if ( !strcmp(argv[ix], "-z") )  { conf.tz_offset = atoi(      argv[++ix] );  }   // Time zone offset to UTC in hours
-
-        else if ( !strcmp(argv[ix], "-n") )  { strcpy( parse.name[parse.count++], argv[++ix]);  }
-        else if ( !strcmp(argv[ix], "-c") )  { parse.column[parse.count++] = atoi(argv[++ix]);  }
+        //
+        else if ( !strcmp(argv[ix], "-n") )  { 
+            if (  conf.json->count < MAXTOKENS ) {
+                strncpy ( conf.json->name[conf.json->count++], argv[++ix], TOKEN_NAMESIZE );
+            }
+        }
+        else if ( !strcmp(argv[ix], "-c") )  {
+            if (  conf.json->count < MAXTOKENS ) {
+                conf.json->column[conf.json->count++] = atoi(argv[++ix]);
+            }
+        }
     }
 }
 
