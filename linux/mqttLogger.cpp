@@ -10,6 +10,7 @@
 #include <mosquitto.h>
 #include <pthread.h>
 #include <cstring>
+#include "jsonxml.h"
 
 #define UNUSED  __attribute__((unused))
 
@@ -45,6 +46,18 @@ conf_t conf = {
       .time_scale     = SCALE_HOUR,
       .topic          = TOPIC
 };
+
+
+#define MAXTOKENS  10
+
+typedef struct
+{
+    int   count;
+    int   column[MAXTOKENS];
+    char  name[MAXTOKENS][TOKEN_NAMESIZE];
+} parse_t;
+
+parse_t parse;
 
 // -----------------------------------------------------------------------------
 
@@ -322,6 +335,38 @@ int udp_recvfrom( int sockfd )
 // -----------------------------------------------------------------------------
 // MQTT
 
+token_t token[ MAXTOKENS ];
+
+void printToken( token_t *token, int token_count, char *name )
+{
+    for ( int i = 0; i < token_count; i++ )
+    {
+        if ( !strcmp(token[i].name, name) )
+        {
+//          printf(" -- %s:%s\n", token[i].name, token[i].data);
+            printf("  %s", token[i].data);
+        }
+    }
+}
+
+
+void printParse( parse_t *parse, token_t *token, int token_count )
+{
+    for ( int i = 0; i < parse->count; i++ )
+    {
+//      printf(" -- %s:%s", token[i].name,  token[i].data);
+        if ( parse.column[i] > 0 ) {
+            // Column's value is in token's name field
+            // Logical column numbering start from 1...
+            printf("  %s", token.name[i-1]); 
+        }
+        else {
+            printToken( token, token_count, parse->name[i] );
+        }
+    }
+}
+
+
 int handleMQTTmessage( char *message, int bytes_received )
 {
     #define MQTT_BUFFER_SIZE  2048
@@ -341,7 +386,8 @@ int handleMQTTmessage( char *message, int bytes_received )
     buffer[ bytes_received ] = 0;
     strip_cr_lf( buffer, bytes_received );
 
-    messages += 1;
+    messages  += 1;
+    int token_count = tokenize_textline( token, buffer, MAXTOKENS );
 
     if ( ++count >= conf.Naverage )
     {
@@ -351,7 +397,12 @@ int handleMQTTmessage( char *message, int bytes_received )
             seconds %= 24*3600;
         }
         printTime( seconds, conf.time_scale );
-        printf("  %s", buffer);
+        if ( parse.count ) {
+            printParse( &parse, token, token_count );
+        }
+        else {
+            printf("  %s", buffer);
+        }
         printf("\n");
         //
         fflush( NULL );   // Flush printf() to stdout
@@ -427,13 +478,17 @@ void* thread_mqtt( void* arg )
 void help( void )
 {
     printf("\n");
-    printf(" Usage:  mqttLogger  [-h host]  [-t \"topic\"]  [-z tz_offset] \n");
+    printf(" Usage:  mqttLogger  [-h host]  [-t \"topic\"]  [-z tz_offset]  [-n name]  [-c number]\n");
     printf("\n");
     printf(" Where:\n");
     printf("\n");
     printf("  -h host        Message broker host name or IP address (default is localhost)\n");
     printf("  -t \"topic\"     Message topic (default is \"#\")\n");
     printf("  -z tz_offset   Time zone offset to UTC (default is +3h, Finland summer time)\n");
+    printf("  -n name        JSON/XML attribute name for pick to output column\n");
+    printf("  -c number      Column number for pick to output (numbering start from 1)\n");
+    printf("\n");
+    printf("  Options \"-n\" and \"-c\" can use multiple times, which defines output column's (re)ordering\n");
     printf("\n");
 }
 
@@ -452,6 +507,9 @@ void parse_args( int argc, char *argv[] )
         else if ( !strcmp(argv[ix], "-t") )  { strcpy( conf.topic,         argv[++ix] );  }
         else if ( !strcmp(argv[ix], "-h") )  { strcpy( conf.mqtt_broker,   argv[++ix] );  }
         else if ( !strcmp(argv[ix], "-z") )  { conf.tz_offset = atoi(      argv[++ix] );  }   // Time zone offset to UTC in hours
+
+        else if ( !strcmp(argv[ix], "-n") )  { strcpy( parse.name[parse.count++], argv[++ix]);  }
+        else if ( !strcmp(argv[ix], "-c") )  { parse.column[parse.count++] = atoi(argv[++ix]);  }
     }
 }
 

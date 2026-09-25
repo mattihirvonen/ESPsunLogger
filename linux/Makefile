@@ -30,8 +30,8 @@ udpLogger:  udpLogger.c
 	gcc     udpLogger.c  $(CFLAGS) -o udpLogger
 
 
-mqttLogger: mqttLogger.cpp  Makefile
-	g++     mqttLogger.cpp  $(CFLAGS) -o mqttLogger -lmosquitto
+mqttLogger: mqttLogger.cpp  jsonxml.c  Makefile
+	g++     mqttLogger.cpp  jsonxml.c  $(CFLAGS) -o mqttLogger -lmosquitto
 
 
 clean:
