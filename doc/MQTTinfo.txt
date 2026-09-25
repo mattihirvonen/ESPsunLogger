@@ -1,0 +1,19 @@
+ESP32/ESP8266 MQTT libraries
+============================
+Notice(s):
+- Only one library can connect to listen TCP/IP port (eg. 1883).
+- Server means here same as message broker.
+- MQTT Explorer is easy to use MQTT PC test application (portable, no install !!!).
+
+https://github.com/mlesniew/PicoMQTT
+- client + server
+- client do not "subscribe" own published messages !!!
+
+https://github.com/256dpi/arduino-mqtt
+- client
+
+https://github.com/terrorsl/sMQTTBroker@0.1.9
+- server
+
+PubSubClient
+- client
