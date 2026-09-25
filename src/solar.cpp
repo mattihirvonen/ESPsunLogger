@@ -54,11 +54,12 @@ void loop_solar_intensity( int32_t now )
     sum += solarIntensity;    // Overflow after few years
 
     String topic      = MQTT_TOPIC;
+    String jsonTopic  = "solar/jdata";
     float  cumulative = cumulative_sum( sum );
 
     // Produce Octave and GnuPlot compatible data row
     #if 1
-    snprintf( line, sizeof(line), "%3d  %.3f  %6d  %4d  %4d  %4d  %4d",
+    snprintf( line, sizeof(line), "%5d  %.3f  %6d  %4d  %4d  %4d  %4d",
               solarIntensity, cumulative, counter, adcData_diff, adcValue.panel, adcValue.diode,
               adcValue.panel - adcValue.debug );
     #else
@@ -73,5 +74,8 @@ void loop_solar_intensity( int32_t now )
     mqtt_publish( topic.c_str(), line );  // Use PicoMQTT library wrapper
     #endif
 
-    Serial.printf("Message published:        %s", line);
+    snprintf( line, sizeof(line), "{ \"intensity\": %3d, \"cumulative\": %.3f }", solarIntensity, cumulative );
+    mqtt_publish( jsonTopic.c_str(), line );  // Use PicoMQTT library wrapper
+
+    Serial.printf("Message published:        %s\r\n", line);
 }
