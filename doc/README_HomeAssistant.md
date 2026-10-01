@@ -1,8 +1,9 @@
 # Some Home Assistant Apps
+Home Assistant's own (standard) default history is useful to check sensors's time history. But there are available more sophisticated graphics card to visialize measurement history data.
 
-## Official Apps
-- File editor (installed)
-- Mosquitto Broker (installed, but use container/VM in QNAP))
+## Some Interesting Official Apps
+- File editor (installed - easy and and in "daily use")
+- Mosquitto Broker (installed, but currently use more generic container/VM in QNAP))
 - Let's Encrypt
 
 ## Graphics Cards (HACS)
@@ -27,14 +28,13 @@ Studio Code Server (installed)
 - https://github.com/hassio-addons/app-vscode
 - https://community.home-assistant.io/t/statistics-graph-chart-card/996225
 
-## Other APPS (HACS)
+## Other Interesting APPS (HACS)
 - FTP (server, installed)
-- InfluxDB (0.6 GB) (installed)
-- Grafana  (1.9 GB) (installed)
-- MQTT Explorer (use PC version)
-- Node-RED (use Docker container in QNAP)
+- InfluxDB (0.6 GB) (installed but stoped, use CPU/memory resources)
+- Grafana  (1.9 GB) (installed but stoped, use CPU/memory resources)
+- MQTT Explorer (use more generic Windows PC version)
+- Node-RED (currently use Docker container in QNAP's Container Station to visualize data - currently no plan to make automation integrations in HA)
 
 ## Cleanup Tool(s) (HACS)
---------------
 Home Assistant Cleanup Tool (to Remove Devices & Entities)
 - https://github.com/jamespo/hasscleanup
