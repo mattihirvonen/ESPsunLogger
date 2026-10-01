@@ -36,6 +36,10 @@
 		<Unit filename="Makefile" />
 		<Unit filename="README_linux.md" />
 		<Unit filename="gnuplot.cmd" />
+		<Unit filename="jsonxml.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jsonxml.h" />
 		<Unit filename="mqttLogger.cpp" />
 		<Unit filename="plot_columns.gnu" />
 		<Unit filename="udpLogger.c">

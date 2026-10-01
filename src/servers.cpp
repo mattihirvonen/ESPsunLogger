@@ -195,7 +195,7 @@ static int write_logfile (char *filename, telnetServer_t::telnetConnection_t *tc
         columns[2] = logger.data[i].mA;
         columns[3] = logger.data[i].dT;
 
-        // Convert int32 to "float" binary log file
+        // Convert int32 to 32 bits "float" binary in log file
         // Simplify file format to 32 bit floats, which are easy to read into Octave.
         if ( float32 ) {
             for ( int j = 0; j < COLUMNS; j++ ) {
