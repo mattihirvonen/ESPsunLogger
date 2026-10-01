@@ -10,6 +10,11 @@ Home Assistant's own (standard) default history is useful to check sensors's tim
 History graph card
 - https://www.home-assistant.io/dashboards/history-graph/
 
+a-better-history-card
+- https://www.npmjs.com/package/@kipk/ha-better-history
+- http://192.168.1.103:8123/hacs/repository/1235796616
+- https://community.home-assistant.io/t/a-better-history-card-ha-history-under-steroids/1010403
+
 Statistics-Graph-Chart-Card (installed)
 - https://community.home-assistant.io/t/statistics-graph-chart-card/996225
 
@@ -30,7 +35,7 @@ Studio Code Server (installed)
 
 ## Other Interesting APPS (HACS)
 - FTP (server, installed)
-- InfluxDB (0.6 GB) (installed but stoped, use CPU/memory resources)
+- InfluxDB v1 (0.6 GB) (installed but stoped, use CPU/memory resources)
 - Grafana  (1.9 GB) (installed but stoped, use CPU/memory resources)
 - MQTT Explorer (use more generic Windows PC version)
 - Node-RED (currently use Docker container in QNAP's Container Station to visualize data - currently no plan to make automation integrations in HA)
