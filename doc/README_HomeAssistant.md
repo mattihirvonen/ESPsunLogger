@@ -1,16 +1,24 @@
 # Some Home Assistant Apps
-Home Assistant's own (standard) default history is useful to check sensors's time history. But there are available more sophisticated graphics card to visialize measurement history data.
+Home Assistant's own (standard) default history is useful to check sensors's time history. But there are available more sophisticated graphics card to visialize measurement history data. 
 
-## Some Interesting Official Apps
+## Some Official Apps
+Select from left sidebar: *Settings / Devices & services*
 - File editor (installed - easy and and in "daily use")
-- Mosquitto Broker (installed, but currently use more generic container/VM in QNAP))
+- HACS (installed - HA Community Services "installatiom tool")
+- System Monitor (installed - disk free etc... - not yet configured)
+  - https://www.home-assistant.io/integrations/systemmonitor/
+- ESPhome (installed - ESP CPU application builder)
+- Mosquitto Broker (installed, but currently use more generic container/VM in QNAP)
 - Let's Encrypt
+
+Following apps are "the must":
+- File editor, HACS and System monitor
+Optionally is suggested to install also:
+- ESPhome
 
 ## Graphics Cards (HACS)
 History graph card
-- https://www.home-assistant.io/dashboards/history-graph/
-
-a-better-history-card
+- https://www.home-assistant.io/dashboards/history-graph/a-better-history-card
 - https://www.npmjs.com/package/@kipk/ha-better-history
 - http://192.168.1.103:8123/hacs/repository/1235796616
 - https://community.home-assistant.io/t/a-better-history-card-ha-history-under-steroids/1010403
