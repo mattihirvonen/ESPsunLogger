@@ -3,8 +3,9 @@ Home Assistant's own (standard) default history is useful to check sensors's tim
 
 ## Some Official Apps
 Select from left sidebar: *Settings / Devices & services*
-- File editor (installed - easy and and in "daily use")
-- HACS (installed - HA Community Services "installatiom tool")
+- File editor (installed - easy in "daily use")
+- HACS (installed - HA Community Services "installation tool")
+  - https://www.home-assistant.io/docs/quality_scale/#-custom
 - System Monitor (installed - disk free etc... - not yet configured)
   - https://www.home-assistant.io/integrations/systemmonitor/
 - ESPhome (installed - ESP CPU application builder)
@@ -41,7 +42,7 @@ Studio Code Server (installed)
 - https://github.com/hassio-addons/app-vscode
 - https://community.home-assistant.io/t/statistics-graph-chart-card/996225
 
-## Other Interesting APPS (HACS)
+## Other Interesting Apps (HACS)
 - FTP (server, installed)
 - InfluxDB v1 (0.6 GB) (installed but stoped, use CPU/memory resources)
 - Grafana  (1.9 GB) (installed but stoped, use CPU/memory resources)
