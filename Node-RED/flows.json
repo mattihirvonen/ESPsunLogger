@@ -1,0 +1,2057 @@
+[
+    {
+        "id": "f7faa2b79c4a42ea",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "2f87fb18820a9077",
+        "type": "tab",
+        "label": "Flow 2",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "0f3cc76c921bb0ec",
+        "type": "tab",
+        "label": "Flow 3",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "7947924aec3f9829",
+        "type": "mqtt-broker",
+        "name": "mosquitto",
+        "broker": "192.168.1.184",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "39e0d8fdb294ab5c",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+    },
+    {
+        "id": "2cb0823585cbad18",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#fcfcfd",
+            "primary": "#0d74ce",
+            "bgPage": "#f9f9fb",
+            "groupBg": "#ffffff",
+            "groupOutline": "#d9d9e0"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "501d2a36494b4c1c",
+        "type": "ui-page",
+        "name": "Page 1",
+        "ui": "39e0d8fdb294ab5c",
+        "path": "/page1",
+        "icon": "home",
+        "layout": "flex",
+        "theme": "2cb0823585cbad18",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 1,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "73792a2d5127711f",
+        "type": "ui-group",
+        "name": "Solar Charge with Theoretical 100W Solar Panel and 100 Ah Battery ",
+        "page": "501d2a36494b4c1c",
+        "width": "16",
+        "height": "12",
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "d2d893dd0937e9bb",
+        "type": "ui_tab",
+        "name": "Home",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "0c6caf0c35b43d55",
+        "type": "ui_base",
+        "theme": {
+            "name": "theme-light",
+            "lightTheme": {
+                "default": "#0094CE",
+                "baseColor": "#0094CE",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": true,
+                "reset": false
+            },
+            "darkTheme": {
+                "default": "#097479",
+                "baseColor": "#097479",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": false
+            },
+            "customTheme": {
+                "name": "Untitled Theme 1",
+                "default": "#4B7930",
+                "baseColor": "#4B7930",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+            },
+            "themeState": {
+                "base-color": {
+                    "default": "#0094CE",
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-titlebar-backgroundColor": {
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-backgroundColor": {
+                    "value": "#fafafa",
+                    "edited": false
+                },
+                "page-sidebar-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-textColor": {
+                    "value": "#1bbfff",
+                    "edited": false
+                },
+                "group-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "widget-textColor": {
+                    "value": "#111111",
+                    "edited": false
+                },
+                "widget-backgroundColor": {
+                    "value": "#0094ce",
+                    "edited": false
+                },
+                "widget-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "base-font": {
+                    "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+                }
+            },
+            "angularTheme": {
+                "primary": "indigo",
+                "accents": "blue",
+                "warn": "red",
+                "background": "grey",
+                "palette": "light"
+            }
+        },
+        "site": {
+            "name": "Node-RED Dashboard",
+            "hideToolbar": "false",
+            "allowSwipe": "false",
+            "lockMenu": "true",
+            "allowTempTheme": "true",
+            "dateFormat": "DD/MM/YYYY",
+            "sizes": {
+                "sx": 48,
+                "sy": 48,
+                "gx": 6,
+                "gy": 6,
+                "cx": 6,
+                "cy": 6,
+                "px": 0,
+                "py": 0
+            }
+        }
+    },
+    {
+        "id": "d82c99a0e75d11d1",
+        "type": "ui_group",
+        "name": "Default",
+        "tab": "d2d893dd0937e9bb",
+        "order": 1,
+        "disp": false,
+        "width": 29,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "6c10cd3e22c29a84",
+        "type": "ui-page",
+        "name": "Page 2",
+        "ui": "39e0d8fdb294ab5c",
+        "path": "/page2",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "2cb0823585cbad18",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 2,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "971f2c0ce9e5d086",
+        "type": "ui-group",
+        "name": "Home",
+        "page": "6c10cd3e22c29a84",
+        "width": 10,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "fadca0d80fec300a",
+        "type": "ui_tab",
+        "name": "Tab 2",
+        "icon": "dashboard",
+        "order": 2
+    },
+    {
+        "id": "656450df42c2411e",
+        "type": "ui-spacer",
+        "group": "73792a2d5127711f",
+        "name": "spacer",
+        "tooltip": "",
+        "order": 5,
+        "width": "16",
+        "height": "1",
+        "className": ""
+    },
+    {
+        "id": "2a358929161a05b1",
+        "type": "ui-spacer",
+        "group": "73792a2d5127711f",
+        "name": "spacer",
+        "tooltip": "",
+        "order": 9,
+        "width": "3",
+        "height": 1,
+        "className": ""
+    },
+    {
+        "id": "4c9a59bb92ddc55a",
+        "type": "debug",
+        "z": "f7faa2b79c4a42ea",
+        "name": "debug 2",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 120,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "5d569a088ee3066d",
+        "type": "ui_chart",
+        "z": "f7faa2b79c4a42ea",
+        "name": "Intensity",
+        "group": "d82c99a0e75d11d1",
+        "order": 1,
+        "width": "20",
+        "height": "6",
+        "label": "Solar Intensity [% of 100 W Panel]",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "120",
+        "removeOlder": "24",
+        "removeOlderPoints": "5000",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 960,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dd2dc2975fb3c849",
+        "type": "ui_gauge",
+        "z": "f7faa2b79c4a42ea",
+        "name": "Power",
+        "group": "d82c99a0e75d11d1",
+        "order": 2,
+        "width": "7",
+        "height": "7",
+        "gtype": "gage",
+        "title": "Solar Panel [100W]",
+        "label": "% [W]",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "120",
+        "colors": [
+            "#e6e600",
+            "#00b500",
+            "#ca3838"
+        ],
+        "seg1": "30",
+        "seg2": "100",
+        "diff": false,
+        "className": "",
+        "x": 950,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "a61ae2c799b42186",
+        "type": "json",
+        "z": "f7faa2b79c4a42ea",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 290,
+        "y": 320,
+        "wires": [
+            [
+                "668e06496b760129",
+                "8f38441e41ee4b62",
+                "b3bb436b76c8540e"
+            ]
+        ]
+    },
+    {
+        "id": "2aeddc2e39b79ba6",
+        "type": "mqtt in",
+        "z": "f7faa2b79c4a42ea",
+        "name": "",
+        "topic": "solar/jdata",
+        "qos": "0",
+        "datatype": "utf8",
+        "broker": "7947924aec3f9829",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 120,
+        "y": 320,
+        "wires": [
+            [
+                "a61ae2c799b42186",
+                "4c9a59bb92ddc55a"
+            ]
+        ]
+    },
+    {
+        "id": "356c10ffd7b57f02",
+        "type": "debug",
+        "z": "f7faa2b79c4a42ea",
+        "name": "debug 8",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 520,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "b3bb436b76c8540e",
+        "type": "debug",
+        "z": "f7faa2b79c4a42ea",
+        "name": "debug 3",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 300,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "668e06496b760129",
+        "type": "change",
+        "z": "f7faa2b79c4a42ea",
+        "name": "",
+        "rules": [
+            {
+                "t": "move",
+                "p": "payload.intensity",
+                "pt": "msg",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 520,
+        "y": 320,
+        "wires": [
+            [
+                "8ff84527349311bc",
+                "dd2dc2975fb3c849",
+                "1918615341643d51"
+            ]
+        ]
+    },
+    {
+        "id": "8ff84527349311bc",
+        "type": "debug",
+        "z": "f7faa2b79c4a42ea",
+        "name": "debug 11",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 520,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "8f38441e41ee4b62",
+        "type": "change",
+        "z": "f7faa2b79c4a42ea",
+        "name": "",
+        "rules": [
+            {
+                "t": "move",
+                "p": "payload.cumulative",
+                "pt": "msg",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 530,
+        "y": 460,
+        "wires": [
+            [
+                "05e4ec15406db133",
+                "b873dbb08f36efa3",
+                "356c10ffd7b57f02"
+            ]
+        ]
+    },
+    {
+        "id": "142aa09674a8ce05",
+        "type": "ui_chart",
+        "z": "f7faa2b79c4a42ea",
+        "name": "Cumulative",
+        "group": "d82c99a0e75d11d1",
+        "order": 3,
+        "width": "20",
+        "height": "6",
+        "label": "Daily Cumulative Power [x100 Wh]",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm",
+        "interpolate": "step",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "5",
+        "removeOlder": "24",
+        "removeOlderPoints": "1000",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 970,
+        "y": 500,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dbe7a4d81c1144ed",
+        "type": "ui_gauge",
+        "z": "f7faa2b79c4a42ea",
+        "name": "Charge",
+        "group": "d82c99a0e75d11d1",
+        "order": 4,
+        "width": "7",
+        "height": "5",
+        "gtype": "donut",
+        "title": "Daily Battery Charge 100 Ah / 13.7 V",
+        "label": "% [100 Ah]",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#e6e600",
+            "#00b500",
+            "#ca3838"
+        ],
+        "seg1": "30",
+        "seg2": "100",
+        "diff": false,
+        "className": "",
+        "x": 960,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "05e4ec15406db133",
+        "type": "range",
+        "z": "f7faa2b79c4a42ea",
+        "minin": "0",
+        "maxin": "13.7",
+        "minout": "0",
+        "maxout": "100",
+        "action": "scale",
+        "round": true,
+        "property": "payload",
+        "name": "Range: 0 - 100",
+        "x": 780,
+        "y": 460,
+        "wires": [
+            [
+                "dbe7a4d81c1144ed"
+            ]
+        ]
+    },
+    {
+        "id": "b873dbb08f36efa3",
+        "type": "rbe",
+        "z": "f7faa2b79c4a42ea",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 750,
+        "y": 500,
+        "wires": [
+            [
+                "142aa09674a8ce05"
+            ]
+        ]
+    },
+    {
+        "id": "1918615341643d51",
+        "type": "rbe",
+        "z": "f7faa2b79c4a42ea",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 750,
+        "y": 360,
+        "wires": [
+            [
+                "5d569a088ee3066d"
+            ]
+        ]
+    },
+    {
+        "id": "9161e6ef9c22e73d",
+        "type": "comment",
+        "z": "f7faa2b79c4a42ea",
+        "name": "https://stevesnoderedguide.com/using-the-node-red-chart-node",
+        "info": "",
+        "x": 330,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "8f230534f62de733",
+        "type": "comment",
+        "z": "f7faa2b79c4a42ea",
+        "name": "https://www.youtube.com/watch?v=PwG56kuoo-o",
+        "info": "",
+        "x": 280,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "58c4061574421c36",
+        "type": "comment",
+        "z": "f7faa2b79c4a42ea",
+        "name": "https://www.youtube.com/watch?v=DFNv91TTt68",
+        "info": "",
+        "x": 280,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "6151b46c51bf09b0",
+        "type": "comment",
+        "z": "f7faa2b79c4a42ea",
+        "name": "https://github.com/node-red/node-red-dashboard/blob/master/Charts.md",
+        "info": "",
+        "x": 350,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "d0ef38a1f97279c4",
+        "type": "comment",
+        "z": "f7faa2b79c4a42ea",
+        "name": "Older (Angular based) dashboard:   \"node-red- dashboard\"",
+        "info": "",
+        "x": 310,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "d1e26cd092ccc92b",
+        "type": "mqtt in",
+        "z": "2f87fb18820a9077",
+        "name": "",
+        "topic": "solar/tikku",
+        "qos": "0",
+        "datatype": "utf8",
+        "broker": "7947924aec3f9829",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 120,
+        "y": 380,
+        "wires": [
+            [
+                "ab50e0236a57b8cd",
+                "85ef99c92b0355c4",
+                "0dd60c71447c0a9a"
+            ]
+        ]
+    },
+    {
+        "id": "ab50e0236a57b8cd",
+        "type": "debug",
+        "z": "2f87fb18820a9077",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 120,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "3b63ccf83c5cc983",
+        "type": "ui-chart",
+        "z": "2f87fb18820a9077",
+        "group": "73792a2d5127711f",
+        "name": "intensity",
+        "label": "",
+        "order": 1,
+        "chartType": "line",
+        "category": "",
+        "categoryType": "none",
+        "xAxisLabel": "",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "timestamp",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "{HH}:{mm}",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "Solar intensity [%] (100% == 100W panel)",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "0",
+        "ymax": "120",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "false",
+        "pointRadius": "1",
+        "showLegend": false,
+        "removeOlder": "12",
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "10000",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#4864d5"
+        ],
+        "gridColorDefault": true,
+        "width": "12",
+        "height": "5",
+        "className": "",
+        "interpolation": "linear",
+        "x": 920,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "85ef99c92b0355c4",
+        "type": "function",
+        "z": "2f87fb18820a9077",
+        "name": "str2tokens",
+        "func": "// NOTE(s):\n// - First token is \"empty\" String,\n//   if input string do not start with number or valid letter\n//-----------------------------------------------------------\n//\"Tokenization, in JavaScript; is essential.\"\nconst str  = msg.payload;\nconst tokens = str.split(/[\\s,;:<>(){}\"]+/);\nconst outMsgs = [];\n\nfor (const w in tokens) {\n     const value = {payload:tokens[w]};\n     outMsgs.push( value );\n//     outMsgs[w] = value;\n}\nreturn outMsgs;\n",
+        "outputs": 8,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 310,
+        "y": 380,
+        "wires": [
+            [],
+            [
+                "3f59780c76f363a7"
+            ],
+            [
+                "9d4ee01aaf690a17"
+            ],
+            [],
+            [
+                "1dc558f0c2f61f73"
+            ],
+            [],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "9d4ee01aaf690a17",
+        "type": "function",
+        "z": "2f87fb18820a9077",
+        "name": "str2number",
+        "func": "const    value  = Number( msg.payload );\nconst    newMsg = { payload: Number( msg.payload ) };\nreturn [ newMsg ];",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 360,
+        "wires": [
+            [
+                "a0d3c8bee4eddbaa",
+                "c6cd31b534953879",
+                "be4237f16fa42486"
+            ]
+        ]
+    },
+    {
+        "id": "532796fde8e84f4d",
+        "type": "debug",
+        "z": "2f87fb18820a9077",
+        "name": "debug 9",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 520,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "3f59780c76f363a7",
+        "type": "function",
+        "z": "2f87fb18820a9077",
+        "name": "str2number1",
+        "func": "const    value  = Number( msg.payload );\nconst    newMsg = { payload: Number( msg.payload ) };\n\n//const    newMsg = { topic: \"number1\", payload: { topic: \"Y1\", payload: Number( msg.payload ) } };\n//       newMsg.topic = \"number1\"\nreturn [ newMsg ];",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 180,
+        "wires": [
+            [
+                "532796fde8e84f4d",
+                "840eb71a028a7dfe",
+                "c5a2aab1e4a0575a",
+                "cedbbe60bb970829"
+            ]
+        ]
+    },
+    {
+        "id": "a0d3c8bee4eddbaa",
+        "type": "debug",
+        "z": "2f87fb18820a9077",
+        "name": "debug 10",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 520,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "070a019d2f45ea8d",
+        "type": "ui-chart",
+        "z": "2f87fb18820a9077",
+        "group": "73792a2d5127711f",
+        "name": "cumulative",
+        "label": "",
+        "order": 3,
+        "chartType": "line",
+        "category": "",
+        "categoryType": "none",
+        "xAxisLabel": "",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "timestamp",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "{HH}:{mm}:{ss}",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "Daily Cumulative Charge  [100 Wh]",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "0",
+        "ymax": "5",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "false",
+        "pointRadius": "1",
+        "showLegend": false,
+        "removeOlder": "24",
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "1000",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": "12",
+        "height": "5",
+        "className": "",
+        "interpolation": "step",
+        "x": 930,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "840eb71a028a7dfe",
+        "type": "ui-gauge",
+        "z": "2f87fb18820a9077",
+        "name": "intensity",
+        "group": "73792a2d5127711f",
+        "order": 2,
+        "value": "payload",
+        "valueType": "msg",
+        "width": 3,
+        "height": 5,
+        "gtype": "gauge-34",
+        "gstyle": "needle",
+        "title": "Solar Power of 100W panel",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "[%]",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#ffffff",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "20",
+                "color": "#ffc800",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "60",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "100",
+                "color": "#ea5353",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "120",
+        "sizeThickness": "48",
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 920,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c6cd31b534953879",
+        "type": "ui-gauge",
+        "z": "2f87fb18820a9077",
+        "name": "cumulative",
+        "group": "73792a2d5127711f",
+        "order": 4,
+        "value": "payload",
+        "valueType": "msg",
+        "width": "3",
+        "height": "3",
+        "gtype": "gauge-battery",
+        "gstyle": "needle",
+        "title": "Cumulative Charge to 100Ah / 13.7V Battery",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "units",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#ea5353",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "4",
+                "color": "#ffc800",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "7",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "13.7",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 930,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1dc558f0c2f61f73",
+        "type": "function",
+        "z": "2f87fb18820a9077",
+        "name": "str2number",
+        "func": "const    value  = Number( msg.payload );\nconst    newMsg = { payload: Number( msg.payload ) };\nreturn [ newMsg ];",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c839f5a68536fa14",
+        "type": "comment",
+        "z": "2f87fb18820a9077",
+        "name": "https://dashboard.flowfuse.com/nodes/widgets/ui-chart.html",
+        "info": "https://dashboard.flowfuse.com/nodes/widgets/ui-chart.html",
+        "x": 250,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "b2a9c1fe1b1d7b4e",
+        "type": "debug",
+        "z": "2f87fb18820a9077",
+        "name": "debug 7",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 920,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "c5a2aab1e4a0575a",
+        "type": "json",
+        "z": "2f87fb18820a9077",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 730,
+        "y": 220,
+        "wires": [
+            [
+                "b2a9c1fe1b1d7b4e"
+            ]
+        ]
+    },
+    {
+        "id": "0dd60c71447c0a9a",
+        "type": "csv",
+        "z": "2f87fb18820a9077",
+        "name": "",
+        "spec": "rfc",
+        "sep": ",",
+        "hdrin": "",
+        "hdrout": "none",
+        "multi": "one",
+        "ret": "\\r\\n",
+        "temp": "",
+        "skip": "0",
+        "strings": true,
+        "include_empty_strings": "",
+        "include_null_values": "",
+        "x": 290,
+        "y": 480,
+        "wires": [
+            [
+                "4485278ebd979dea"
+            ]
+        ]
+    },
+    {
+        "id": "4485278ebd979dea",
+        "type": "debug",
+        "z": "2f87fb18820a9077",
+        "name": "debug 4",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 520,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "c31fe18ddffd5e92",
+        "type": "comment",
+        "z": "2f87fb18820a9077",
+        "name": "https://www.youtube.com/watch?v=Ecno0EuLyKQ",
+        "info": "",
+        "x": 220,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "0ec4dc24aafe7afd",
+        "type": "mqtt in",
+        "z": "2f87fb18820a9077",
+        "name": "",
+        "topic": "solar/jdata",
+        "qos": "0",
+        "datatype": "utf8",
+        "broker": "7947924aec3f9829",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 120,
+        "y": 660,
+        "wires": [
+            [
+                "ea243320c428b862",
+                "387f5f742d0a7369"
+            ]
+        ]
+    },
+    {
+        "id": "ea243320c428b862",
+        "type": "debug",
+        "z": "2f87fb18820a9077",
+        "name": "debug 5",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 120,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "e73dd96b69ada74b",
+        "type": "ui-chart",
+        "z": "2f87fb18820a9077",
+        "group": "73792a2d5127711f",
+        "name": "",
+        "label": "Intensity",
+        "order": 6,
+        "chartType": "line",
+        "category": "",
+        "categoryType": "none",
+        "xAxisLabel": "",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "timestamp",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "{HH}:{mm}",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "0",
+        "ymax": "100",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "false",
+        "pointRadius": 4,
+        "showLegend": false,
+        "removeOlder": "12",
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "5000",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": 6,
+        "height": 8,
+        "className": "",
+        "interpolation": "linear",
+        "x": 560,
+        "y": 740,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "387f5f742d0a7369",
+        "type": "json",
+        "z": "2f87fb18820a9077",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 330,
+        "y": 660,
+        "wires": [
+            [
+                "28e6981cd9747d91",
+                "5a02cd9e91599ccb",
+                "8fd63f115a9b3313",
+                "be896f38cbdd31ac",
+                "f995c75c60dce3e4",
+                "d976e605f1fe034c"
+            ]
+        ]
+    },
+    {
+        "id": "28e6981cd9747d91",
+        "type": "debug",
+        "z": "2f87fb18820a9077",
+        "name": "debug 6",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 340,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "67bd8b0118430c35",
+        "type": "ui-chart",
+        "z": "2f87fb18820a9077",
+        "group": "73792a2d5127711f",
+        "name": "",
+        "label": "Cumulative",
+        "order": 7,
+        "chartType": "line",
+        "category": "",
+        "categoryType": "none",
+        "xAxisLabel": "",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "timestamp",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "{HH}:{mm}",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "0",
+        "ymax": "5",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "false",
+        "pointRadius": 4,
+        "showLegend": false,
+        "removeOlder": "24",
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "1000",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": 6,
+        "height": 8,
+        "className": "",
+        "interpolation": "step",
+        "x": 570,
+        "y": 940,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5a02cd9e91599ccb",
+        "type": "ui-gauge",
+        "z": "2f87fb18820a9077",
+        "name": "",
+        "group": "73792a2d5127711f",
+        "order": 8,
+        "value": "payload.intensity",
+        "valueType": "msg",
+        "width": 3,
+        "height": 3,
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "Solar Panel Power",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "% [W]",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#ffc800",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "30",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "100",
+                "color": "#ea5353",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "120",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 590,
+        "y": 780,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d976e605f1fe034c",
+        "type": "ui-gauge",
+        "z": "2f87fb18820a9077",
+        "name": "",
+        "group": "73792a2d5127711f",
+        "order": 10,
+        "value": "payload.cumulative",
+        "valueType": "msg",
+        "width": 3,
+        "height": 3,
+        "gtype": "gauge-tank",
+        "gstyle": "needle",
+        "title": "Daily Charge to 100 Ah Battery",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "units",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#a8f5ff",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "1.5",
+                "color": "#55dbec",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "3.5",
+                "color": "#53b4fd",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "5.0",
+                "color": "#2397d1",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "13.7",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 630,
+        "y": 980,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f995c75c60dce3e4",
+        "type": "range",
+        "z": "2f87fb18820a9077",
+        "minin": "0",
+        "maxin": "13.7",
+        "minout": "0",
+        "maxout": "100",
+        "action": "scale",
+        "round": false,
+        "property": "payload",
+        "name": "",
+        "x": 500,
+        "y": 1060,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "be896f38cbdd31ac",
+        "type": "change",
+        "z": "2f87fb18820a9077",
+        "name": "",
+        "rules": [
+            {
+                "t": "move",
+                "p": "payload.cumulative",
+                "pt": "msg",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 630,
+        "y": 860,
+        "wires": [
+            [
+                "f6978ea5bbe188c2"
+            ]
+        ]
+    },
+    {
+        "id": "9a04b7da1db0b23e",
+        "type": "rbe",
+        "z": "2f87fb18820a9077",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 630,
+        "y": 700,
+        "wires": [
+            [
+                "e73dd96b69ada74b"
+            ]
+        ]
+    },
+    {
+        "id": "f6978ea5bbe188c2",
+        "type": "rbe",
+        "z": "2f87fb18820a9077",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 630,
+        "y": 900,
+        "wires": [
+            [
+                "67bd8b0118430c35"
+            ]
+        ]
+    },
+    {
+        "id": "8fd63f115a9b3313",
+        "type": "change",
+        "z": "2f87fb18820a9077",
+        "name": "",
+        "rules": [
+            {
+                "t": "move",
+                "p": "payload.intensity",
+                "pt": "msg",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 620,
+        "y": 660,
+        "wires": [
+            [
+                "9a04b7da1db0b23e"
+            ]
+        ]
+    },
+    {
+        "id": "cedbbe60bb970829",
+        "type": "rbe",
+        "z": "2f87fb18820a9077",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 730,
+        "y": 140,
+        "wires": [
+            [
+                "3b63ccf83c5cc983"
+            ]
+        ]
+    },
+    {
+        "id": "be4237f16fa42486",
+        "type": "rbe",
+        "z": "2f87fb18820a9077",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 730,
+        "y": 320,
+        "wires": [
+            [
+                "070a019d2f45ea8d"
+            ]
+        ]
+    },
+    {
+        "id": "e5c78f2428ed9d48",
+        "type": "comment",
+        "z": "2f87fb18820a9077",
+        "name": "dashboard2: @flowfuse/node-red-dashboard",
+        "info": "",
+        "x": 750,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "b578363e2babee92",
+        "type": "debug",
+        "z": "0f3cc76c921bb0ec",
+        "name": "debug 12",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "f4edf215477ddc3d",
+        "type": "function",
+        "z": "0f3cc76c921bb0ec",
+        "name": "split2tokens",
+        "func": "// https://nodered.org/docs/user-guide/writing-functions\n// https://stackoverflow.com/questions/18739190/splitting-a-string-into-tokens\n\nconst  outputMsgs = [];\nconst  inputMsg = msg.payload;\n// const  words = inputMsg.split(\" \");\n// for (const w in words) {\n//    outputMsgs.push({inputMsg:words[w]});\n// }\n// return [ outputMsgs ];\n\n\n// Create an array same length as there are outputs\nconst messages = new Array(node.outputCount);\n\n// for (int ix = 0; ix < node.outputCount; ix++) {\n//    messages[ix] = msg;\n// }\n\n// Return the array\nreturn messages;\n",
+        "outputs": 4,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 170,
+        "y": 580,
+        "wires": [
+            [],
+            [],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "2dd8985416f59844",
+        "type": "function",
+        "z": "0f3cc76c921bb0ec",
+        "name": "splitString",
+        "func": "// ToDo:...\n\n//String    regex    = \"[,\\\\.\\\\s]\";\n//String    msgStr   = msg.payload;\n//String[]  strArray = msgStr.split(regex);\n//String[]  strArray = msgStr.split;\nconst     outMsgs  = new Array(node.outputCount);\n\n//for (int  ix = 0; ix < node.outputCount; ix++) {\n//  outMsgs[ix] = strArray[ix];\n//}\nreturn outMsgs;\n",
+        "outputs": 8,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 160,
+        "y": 340,
+        "wires": [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "78117c1e61600782",
+        "type": "function",
+        "z": "0f3cc76c921bb0ec",
+        "name": "splitter",
+        "func": "\nconst fnumber = 4;\n\n//-----------------------------------------------------\n//  ERROIR: Following doc's example with split  function argument produce error !!!\nif ( fnumber >= 4 )\n{\n    const outputMsgs = [];\n//  const words = msg.payload.split(\" \");\n//    const words = msg.payload.split(\"\\\\s+\");\n\n //const words = msg.payload.match(/^\\s*\\[\\s*(.*?)\\s+\\((.*?)\\)\\s+(.*?)\\s+'(.*?)'\\s+.*?'(.*?)'\\s*\\]\\s*$/);\n\nconst str = msg.payload; //\"Tokenization, in JavaScript; is essential.\";\nconst words = str.split(/[\\s,;]+/);\n\n  //  const words = msg.payload.split; //(\" \");\n    for (const w in words) {\n        outputMsgs.push({payload:words[w]});\n    }\n    return [ outputMsgs[1], outputMsgs[2], outputMsgs[3] ];\n}\n//-----------------------------------------------------\n// Works OK\nif ( fnumber >= 3 )\n{\n    const msg1 = { payload:\"first out of output 1\" };\n    const msg2 = { payload:\"second out of output 1\" };\n    const msg3 = { payload:\"third out of output 1\" };\n    const msg4 = { payload:\"only message from output 2\" };\n//  return [ [ msg1, msg2, msg3 ], msg4 ];\n    return [   msg1, msg2, msg3, msg4   ];\n}\n//-----------------------------------------------------\n// Works OK\n// even in original example one row missing semi colon (';')\nif ( fnumber >= 2 )\n{\n    // Create an array same length as there are outputs\n    const messages = new Array(node.outputCount)\n    // Choose random output number to send the message to\n    const chosenOutputIndex = Math.floor(Math.random() * node.outputCount);\n    // Send the message only to chosen output\n    messages[chosenOutputIndex] = msg;\n    // Return the array containing chosen output\n    return messages;\n}\n//-----------------------------------------------------\n// Works OK\nif ( fnumber >= 1 )\n{\n    const newMsg = { payload: msg.payload.length };\n    return [msg, newMsg];\n}\n//-----------------------------------------------------\n\n\n// Source - https://stackoverflow.com/a/47232416\n// Posted by Killzone Kid\n// Retrieved 2026-09-20, License - CC BY-SA 3.0\n\n// str = \"  [   condition12  (BRAND) IN 'Beats by Dr. Dre & D\\'Silva of type Band'   of type  'IDENTIFIER_STRING' ]   \";\n// String str = msg.payload;\n// const matches = str.match(/^\\s*\\[\\s*(.*?)\\s+\\((.*?)\\)\\s+(.*?)\\s+'(.*?)'\\s+.*?'(.*?)'\\s*\\]\\s*$/);\n\n// return [ matches[1], matches[2], matches[3], matches[4] ];\nreturn [ 1, 2, 3, 4 ];",
+        "outputs": 4,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 150,
+        "y": 480,
+        "wires": [
+            [],
+            [],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "91181fa7a60b8866",
+        "type": "json",
+        "z": "0f3cc76c921bb0ec",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 370,
+        "y": 200,
+        "wires": [
+            [
+                "bd9e74c2b4f93204",
+                "88cedd2a5fbf1707",
+                "8f500f9818862471"
+            ]
+        ]
+    },
+    {
+        "id": "c5f0f381e337f1dc",
+        "type": "mqtt in",
+        "z": "0f3cc76c921bb0ec",
+        "name": "",
+        "topic": "solar/jdata",
+        "qos": "0",
+        "datatype": "utf8",
+        "broker": "7947924aec3f9829",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 180,
+        "y": 200,
+        "wires": [
+            [
+                "91181fa7a60b8866",
+                "338685b8edc19107"
+            ]
+        ]
+    },
+    {
+        "id": "bd9e74c2b4f93204",
+        "type": "debug",
+        "z": "0f3cc76c921bb0ec",
+        "name": "debug 13",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 380,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "ec7bd4e9832e2590",
+        "type": "function",
+        "z": "0f3cc76c921bb0ec",
+        "name": "voltage",
+        "func": "let d= new Date();\nlet timestamp=d.getTime();\n\nconst key = \"voltage\";\n//const voltage = msg[key];\nconst voltage = msg.voltage;\n\n//const newMsg = { topic: \"voltage\", payload: 12 }; // = { payload: msg[key] };\n//const newMsg = { topic: \"voltage\", voltage }; // = { payload: msg[key] };\n\n//newMsg.topic    = key;\nnewMsg.payload  = Number( msg.payload ); //13 // voltage.payload;\nreturn newMsg;\n\n//const newMsg = { payload: msg[key] };\n//return newMsg;\n\n\nintensityValue.topic = \"voltage\";\n\n//const msg1 = { payload:intensityValue};\n\n//const  inputMsg = msg.payload;\n\n//inputMsg.topic = \"voltage\";\n//inputMsg.payload = intensityValue; // msg.payload;\n\n//var obj = msg.parse(msg);\n//const newMsg = msg.parse(msg);;\n//newMsg.payload = obj.d.ItemValue_1;\n//return intensityValue; //inputMsg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 420,
+        "wires": [
+            [
+                "53694c71ee60945b",
+                "ed225f24652e0cd5"
+            ]
+        ]
+    },
+    {
+        "id": "338685b8edc19107",
+        "type": "debug",
+        "z": "0f3cc76c921bb0ec",
+        "name": "debug 14",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 180,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "53694c71ee60945b",
+        "type": "debug",
+        "z": "0f3cc76c921bb0ec",
+        "name": "debug 15",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 620,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "88cedd2a5fbf1707",
+        "type": "json",
+        "z": "0f3cc76c921bb0ec",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 530,
+        "y": 280,
+        "wires": [
+            [
+                "0b375b77c8fe42df"
+            ]
+        ]
+    },
+    {
+        "id": "0b375b77c8fe42df",
+        "type": "debug",
+        "z": "0f3cc76c921bb0ec",
+        "name": "debug 16",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "99b4e23fe83cbb34",
+        "type": "debug",
+        "z": "0f3cc76c921bb0ec",
+        "name": "debug 17",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "ed225f24652e0cd5",
+        "type": "json",
+        "z": "0f3cc76c921bb0ec",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 510,
+        "y": 520,
+        "wires": [
+            [
+                "99b4e23fe83cbb34"
+            ]
+        ]
+    },
+    {
+        "id": "8f500f9818862471",
+        "type": "ui-chart",
+        "z": "0f3cc76c921bb0ec",
+        "group": "971f2c0ce9e5d086",
+        "name": "Testi",
+        "label": "chart",
+        "order": 1,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisLabel": "",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "timestamp",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "-1000",
+        "ymax": "1000",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": "8",
+        "showLegend": true,
+        "removeOlder": "3",
+        "removeOlderUnit": "60",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": "10",
+        "height": "7",
+        "className": "",
+        "interpolation": "linear",
+        "x": 530,
+        "y": 200,
+        "wires": [
+            [
+                "b578363e2babee92"
+            ]
+        ]
+    },
+    {
+        "id": "ccd053b701151c22",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@flowfuse/node-red-dashboard": "1.31.0",
+            "node-red-dashboard": "3.6.6"
+        }
+    }
+]
