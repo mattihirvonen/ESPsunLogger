@@ -14,6 +14,7 @@ Select from left sidebar: *Settings / Devices & services*
 
 Following apps are "the must":
 - File editor, HACS and System monitor
+
 Optionally is suggested to install also:
 - ESPhome
 
